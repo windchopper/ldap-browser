@@ -6,18 +6,15 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ru.wind.common.fx.builder.StageBuilder;
 import ru.wind.common.preferences.DoublePreferencesEntry;
-import ru.wind.tools.ldap.browser.cdi.annotations.Messages;
+import ru.wind.tools.ldap.browser.cdi.annotations.Message;
 import ru.wind.tools.ldap.browser.cdi.annotations.PreferencesEntry;
 import ru.wind.tools.ldap.browser.cdi.annotations.PrimaryStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.ResourceBundle;
 
 @ApplicationScoped public class ConnectionStageController {
-
-    @Inject @Messages private ResourceBundle bundle;
 
     @Inject @PreferencesEntry("connectionStageX") private DoublePreferencesEntry connectionStageX;
     @Inject @PreferencesEntry("connectionStageY") private DoublePreferencesEntry connectionStageY;
@@ -28,7 +25,7 @@ import java.util.ResourceBundle;
      *
      */
 
-    public void start(@Observes @PrimaryStage Stage primaryStage) {
+    public void start(@Observes @PrimaryStage Stage primaryStage, @Message("title") String title) {
         new StageBuilder(() -> primaryStage)
             .preferredLocationAndSize(
                 primaryStage.getX(),
@@ -40,7 +37,7 @@ import java.util.ResourceBundle;
                 connectionStageWidth,
                 connectionStageHeight)
             .fixMinSize()
-            .title(bundle.getString("tools.ldap.browser.Main.title"))
+            .title(title)
             .scene(buildSceneRoot())
             .get().show();
     }
