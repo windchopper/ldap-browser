@@ -1,4 +1,4 @@
-package ru.wind.tools.ldap.browser.cdi.annotations;
+package ru.wind.tools.ldap.browser.cdi;
 
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;

@@ -1,17 +1,19 @@
 package ru.wind.tools.ldap.browser;
 
+import javafx.beans.binding.Bindings;
 import javafx.scene.Parent;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import ru.wind.common.fx.builder.BorderPaneBuilder;
-import ru.wind.common.fx.builder.StageBuilder;
-import ru.wind.common.fx.builder.TableViewBuilder;
+import ru.wind.common.fx.builder.*;
 import ru.wind.common.preferences.DoublePreferencesEntry;
-import ru.wind.tools.ldap.browser.cdi.annotations.Message;
-import ru.wind.tools.ldap.browser.cdi.annotations.PreferencesEntry;
-import ru.wind.tools.ldap.browser.cdi.annotations.PrimaryStage;
+import ru.wind.tools.ldap.browser.cdi.MessageBundle;
+import ru.wind.tools.ldap.browser.cdi.PreferencesEntry;
+import ru.wind.tools.ldap.browser.cdi.PrimaryStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -24,16 +26,46 @@ import javax.inject.Inject;
     @Inject @PreferencesEntry("connectionStageWidth") private DoublePreferencesEntry connectionStageWidth;
     @Inject @PreferencesEntry("connectionStageHeight") private DoublePreferencesEntry connectionStageHeight;
 
-    private TableView<Connection> connectionTableView;
+    @Inject private MessageBundle messageBundle;
 
     /*
      *
      */
 
-    private Parent buildSceneRoot() {
+    @Inject private Parent buildSceneRoot() {
         return new BorderPaneBuilder(BorderPane::new)
             .center(
                 new TableViewBuilder<>(TableView<Connection>::new)
+                    .identifier("connectionTableView")
+                    .contextMenu(
+                        new ContextMenuBuilder(ContextMenu::new)
+                            .addAll(
+                                new MenuItemBuilder(MenuItem::new)
+                                    .text(messageBundle.bundleString("ConnectionStageController.connection.contextMenu.connect"))
+                                    .bindDisableProperty(Bindings.isNotNull(LazyObservable.lookup("connectionTableView/selectionModel/selectedItemProperty()")))
+                                    .get(),
+                                new MenuItemBuilder(SeparatorMenuItem::new)
+                                    .get(),
+                                new MenuItemBuilder(MenuItem::new)
+                                    .text(messageBundle.bundleString("ConnectionStageController.connection.contextMenu.clone"))
+                                    .bindDisableProperty(Bindings.isNotNull(connectionTableView.getSelectionModel().selectedItemProperty()))
+                                    .get(),
+                                new MenuItemBuilder(MenuItem::new)
+                                    .text(messageBundle.bundleString("ConnectionStageController.connection.contextMenu.add"))
+                                    .bindDisableProperty(Bindings.isNotNull(connectionTableView.getSelectionModel().selectedItemProperty()))
+                                    .get(),
+                                new MenuItemBuilder(MenuItem::new)
+                                    .text(messageBundle.bundleString("ConnectionStageController.connection.contextMenu.remove"))
+                                    .bindDisableProperty(Bindings.isNotNull(connectionTableView.getSelectionModel().selectedItemProperty()))
+                                    .get(),
+                                new MenuItemBuilder(SeparatorMenuItem::new)
+                                    .get(),
+                                new MenuItemBuilder(MenuItem::new)
+                                    .text(messageBundle.bundleString("ConnectionStageController.connection.contextMenu.properties"))
+                                    .bindDisableProperty(Bindings.isNotNull(connectionTableView.getSelectionModel().selectedItemProperty()))
+                                    .get())
+                            .get()
+                    )
                     .get())
             .get();
     }
@@ -42,7 +74,7 @@ import javax.inject.Inject;
      *
      */
 
-    public void start(@Observes @PrimaryStage Stage primaryStage, @Message("title") String title) {
+    public void start(@Observes @PrimaryStage Stage primaryStage) {
         new StageBuilder(() -> primaryStage)
             .preferredLocationAndSize(
                 primaryStage.getX(),
@@ -54,7 +86,7 @@ import javax.inject.Inject;
                 connectionStageWidth,
                 connectionStageHeight)
             .fixMinSize()
-            .title(title)
+            .title(messageBundle.bundleString("ConnectionStageController.title"))
             .scene(buildSceneRoot())
             .get().show();
     }

@@ -1,4 +1,4 @@
-package ru.wind.tools.ldap.browser.cdi.annotations;
+package ru.wind.tools.ldap.browser.cdi;
 
 import javax.inject.Qualifier;
 import java.lang.annotation.Retention;

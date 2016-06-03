@@ -4,7 +4,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
-import ru.wind.tools.ldap.browser.cdi.annotations.PrimaryStageLiteral;
+import ru.wind.tools.ldap.browser.cdi.PrimaryStageLiteral;
 
 public class Launcher extends Application {
 
