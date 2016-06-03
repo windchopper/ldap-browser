@@ -24,6 +24,10 @@ public class Launcher extends Application {
         weldContainer.getBeanManager().fireEvent(primaryStage, new PrimaryStageLiteral());
     }
 
+    /*
+     *
+     */
+
     public static void main(String... args) {
         launch(args);
     }

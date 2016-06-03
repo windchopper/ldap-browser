@@ -1,5 +1,6 @@
 package ru.wind.tools.ldap.browser.cdi;
 
+import ru.wind.common.fx.preferences.RectanglePreferencesEntry;
 import ru.wind.common.preferences.DoublePreferencesEntry;
 import ru.wind.tools.ldap.browser.cdi.annotations.PreferencesEntry;
 
@@ -11,6 +12,12 @@ import javax.enterprise.inject.spi.InjectionPoint;
 
     @Produces @PreferencesEntry("*") public DoublePreferencesEntry createDoublePreferencesEntry(InjectionPoint injectionPoint) {
         return new DoublePreferencesEntry(
+            injectionPoint.getMember().getDeclaringClass(),
+            injectionPoint.getAnnotated().getAnnotation(PreferencesEntry.class).value());
+    }
+
+    @Produces @PreferencesEntry("*") public RectanglePreferencesEntry createRectanglePreferencesEntry(InjectionPoint injectionPoint) {
+        return new RectanglePreferencesEntry(
             injectionPoint.getMember().getDeclaringClass(),
             injectionPoint.getAnnotated().getAnnotation(PreferencesEntry.class).value());
     }

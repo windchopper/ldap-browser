@@ -1,10 +1,13 @@
 package ru.wind.tools.ldap.browser;
 
 import javafx.scene.Parent;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import ru.wind.common.fx.builder.BorderPaneBuilder;
 import ru.wind.common.fx.builder.StageBuilder;
+import ru.wind.common.fx.builder.TableViewBuilder;
 import ru.wind.common.preferences.DoublePreferencesEntry;
 import ru.wind.tools.ldap.browser.cdi.annotations.Message;
 import ru.wind.tools.ldap.browser.cdi.annotations.PreferencesEntry;
@@ -20,6 +23,20 @@ import javax.inject.Inject;
     @Inject @PreferencesEntry("connectionStageY") private DoublePreferencesEntry connectionStageY;
     @Inject @PreferencesEntry("connectionStageWidth") private DoublePreferencesEntry connectionStageWidth;
     @Inject @PreferencesEntry("connectionStageHeight") private DoublePreferencesEntry connectionStageHeight;
+
+    private TableView<Connection> connectionTableView;
+
+    /*
+     *
+     */
+
+    private Parent buildSceneRoot() {
+        return new BorderPaneBuilder(BorderPane::new)
+            .center(
+                new TableViewBuilder<>(TableView<Connection>::new)
+                    .get())
+            .get();
+    }
 
     /*
      *
@@ -40,14 +57,6 @@ import javax.inject.Inject;
             .title(title)
             .scene(buildSceneRoot())
             .get().show();
-    }
-
-    /*
-     *
-     */
-
-    private Parent buildSceneRoot() {
-        return new BorderPane();
     }
 
 }
