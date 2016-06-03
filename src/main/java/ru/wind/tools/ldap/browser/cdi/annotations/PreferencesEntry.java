@@ -14,9 +14,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
     FIELD,
     PARAMETER,
     METHOD
-})
-public @interface PreferencesEntry {
-
+}) public @interface PreferencesEntry {
     @Nonbinding String value();
-
 }
