@@ -2,6 +2,7 @@ package ru.wind.tools.ldap.browser.cdi;
 
 import ru.wind.common.fx.preferences.RectanglePreferencesEntry;
 import ru.wind.common.preferences.DoublePreferencesEntry;
+import ru.wind.tools.ldap.browser.preferences.ConnectionSetPreferencesEntry;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -26,6 +27,12 @@ import java.util.ResourceBundle;
 
     @Produces @PreferencesEntry("*") public RectanglePreferencesEntry createRectanglePreferencesEntry(InjectionPoint injectionPoint) {
         return new RectanglePreferencesEntry(
+            injectionPoint.getMember().getDeclaringClass(),
+            injectionPoint.getAnnotated().getAnnotation(PreferencesEntry.class).value());
+    }
+
+    @Produces @PreferencesEntry("*") public ConnectionSetPreferencesEntry createConnectionSetPreferencesEntry(InjectionPoint injectionPoint) {
+        return new ConnectionSetPreferencesEntry(
             injectionPoint.getMember().getDeclaringClass(),
             injectionPoint.getAnnotated().getAnnotation(PreferencesEntry.class).value());
     }
