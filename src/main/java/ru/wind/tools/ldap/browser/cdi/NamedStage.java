@@ -13,5 +13,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
     FIELD,
     PARAMETER,
     METHOD
-}) public @interface PrimaryStage {
+}) public @interface NamedStage {
+    String value();
 }

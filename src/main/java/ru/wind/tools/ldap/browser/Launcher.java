@@ -4,7 +4,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
-import ru.wind.tools.ldap.browser.cdi.PrimaryStageLiteral;
+import ru.wind.tools.ldap.browser.cdi.NamedStageLiteral;
 
 public class Launcher extends Application {
 
@@ -21,7 +21,7 @@ public class Launcher extends Application {
     }
 
     @Override public void start(Stage primaryStage) throws Exception {
-        weldContainer.getBeanManager().fireEvent(primaryStage, new PrimaryStageLiteral());
+        weldContainer.getBeanManager().fireEvent(primaryStage, new NamedStageLiteral("connectionList"));
     }
 
     /*

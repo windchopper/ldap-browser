@@ -3,16 +3,16 @@ package ru.wind.tools.ldap.browser.preferences;
 import ru.wind.common.preferences.ObjectCollectionPreferencesEntry;
 import ru.wind.tools.ldap.browser.Connection;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ConnectionSetPreferencesEntry extends ObjectCollectionPreferencesEntry<Connection, Set<Connection>> {
+public class ConnectionListPreferencesEntry extends ObjectCollectionPreferencesEntry<Connection, List<Connection>> {
 
-    public ConnectionSetPreferencesEntry(Class<?> invoker, String name) {
+    public ConnectionListPreferencesEntry(Class<?> invoker, String name) {
         super(
             invoker,
             name,
-            HashSet::new,
+            ArrayList::new,
             structuredValue -> {
                 Connection connection = new Connection();
                 connection.load(structuredValue);
