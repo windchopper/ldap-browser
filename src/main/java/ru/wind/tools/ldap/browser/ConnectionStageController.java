@@ -7,10 +7,10 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import ru.wind.common.fx.Alignment;
-import ru.wind.common.fx.Fill;
-import ru.wind.common.fx.builder.*;
-import ru.wind.common.preferences.DoublePreferencesEntry;
+import name.wind.common.fx.Alignment;
+import name.wind.common.fx.Fill;
+import name.wind.common.fx.builder.*;
+import name.wind.common.preferences.DoublePreferencesEntry;
 import ru.wind.tools.ldap.browser.cdi.NamedStage;
 import ru.wind.tools.ldap.browser.cdi.PreferencesEntry;
 

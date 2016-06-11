@@ -1,6 +1,6 @@
 package ru.wind.tools.ldap.browser.preferences;
 
-import ru.wind.common.preferences.ObjectCollectionPreferencesEntry;
+import name.wind.common.preferences.ObjectCollectionPreferencesEntry;
 import ru.wind.tools.ldap.browser.Connection;
 
 import java.util.ArrayList;

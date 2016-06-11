@@ -1,7 +1,7 @@
 package ru.wind.tools.ldap.browser.cdi;
 
-import ru.wind.common.fx.preferences.RectanglePreferencesEntry;
-import ru.wind.common.preferences.DoublePreferencesEntry;
+import name.wind.common.fx.preferences.RectanglePreferencesEntry;
+import name.wind.common.preferences.DoublePreferencesEntry;
 import ru.wind.tools.ldap.browser.preferences.ConnectionListPreferencesEntry;
 
 import javax.enterprise.context.ApplicationScoped;
