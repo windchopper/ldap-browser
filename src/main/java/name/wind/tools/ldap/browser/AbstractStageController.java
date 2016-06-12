@@ -6,6 +6,7 @@ import javafx.stage.Window;
 import name.wind.common.preferences.DoublePreferencesEntry;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.Optional;
 
 public abstract class AbstractStageController {
@@ -15,7 +16,7 @@ public abstract class AbstractStageController {
 
     protected Stage stage;
 
-    protected void start(Stage stage) {
+    protected void start(Stage stage) throws IOException {
         this.stage = stage;
 
         String identifier = (String) stage.getUserData();

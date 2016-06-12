@@ -3,6 +3,8 @@ package name.wind.tools.ldap.browser;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener.Change;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -16,6 +18,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,6 +27,7 @@ import static java.util.Arrays.asList;
 @ApplicationScoped public class ConnectionListStageController extends AbstractStageController {
 
     @Inject private Preferences preferences;
+    @Inject private FXMLLoader fxmlLoader;
 
     private boolean selectedConnectionCountMatches(int min, int max) {
         return Optional.ofNullable(lookup("#connectionTableView", TableView.class))
@@ -42,7 +46,11 @@ import static java.util.Arrays.asList;
             new NamedStageLiteral("connectionStage"));
     }
 
-    private Scene buildScene() {
+    private Scene buildScene() throws IOException {
+        if (true) return new Scene(
+            fxmlLoader.load(ConnectionListStageController.class.getResourceAsStream("/name/wind/tools/ldap/browser/connectionListScene.fxml"))
+        );
+
         return new Scene(
             Builder.direct(BorderPane::new)
                 .set(target -> target::setCenter, Builder.direct(TableView<Connection>::new)
@@ -86,7 +94,7 @@ import static java.util.Arrays.asList;
                 .get());
     }
 
-    @Override protected void start(@Observes @NamedStage("connectionListStage") Stage stage) {
+    @Override protected void start(@Observes @NamedStage("connectionListStage") Stage stage) throws IOException {
         super.start(stage);
         Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.bundleString("ConnectionListStageController.title"))

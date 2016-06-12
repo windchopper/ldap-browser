@@ -5,7 +5,11 @@ import java.util.ResourceBundle;
 
 @ApplicationScoped public class Bundle {
 
-    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("name.wind.tools.ldap.browser.i18n.messages");
+    private final ResourceBundle resourceBundle = ResourceBundle.getBundle("name.wind.tools.ldap.browser.i18n.messages");
+
+    public ResourceBundle javaResourceBundle() {
+        return resourceBundle;
+    }
 
     public String bundleString(String key, Object... parameters) {
         return String.format(
