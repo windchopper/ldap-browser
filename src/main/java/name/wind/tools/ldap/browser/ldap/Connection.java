@@ -81,9 +81,12 @@ public class Connection {
 
         environment.setProperty(InitialDirContext.INITIAL_CONTEXT_FACTORY, TYPE__LDAP_CONTEXT_FACTORY);
         environment.setProperty(InitialDirContext.PROVIDER_URL, uri.toString());
-        environment.setProperty(InitialDirContext.SECURITY_AUTHENTICATION, authMethod.value);
-        environment.setProperty(InitialDirContext.SECURITY_PRINCIPAL, username);
-        environment.setProperty(InitialDirContext.SECURITY_CREDENTIALS, password);
+        environment.setProperty(InitialDirContext.SECURITY_AUTHENTICATION, authMethod.value());
+
+        if (authMethod.credentialsNeeded()) {
+            environment.setProperty(InitialDirContext.SECURITY_PRINCIPAL, username);
+            environment.setProperty(InitialDirContext.SECURITY_CREDENTIALS, password);
+        }
 
         return new InitialDirContext(environment);
     }

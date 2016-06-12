@@ -1,10 +1,10 @@
 package name.wind.tools.ldap.browser;
 
-import javafx.scene.Node;
+import javafx.application.Platform;
+import javafx.geometry.Dimension2D;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import name.wind.common.preferences.DoublePreferencesEntry;
-import name.wind.tools.ldap.browser.annotations.NamedStage;
+import name.wind.tools.ldap.browser.annotations.SpecialStage;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -12,39 +12,40 @@ import java.util.Optional;
 
 public abstract class AbstractStageController {
 
-    @Inject protected Bundle bundle;
     @Inject protected Preferences preferences;
-
     protected Stage stage;
 
-    protected void start(Stage stage) throws IOException {
+    protected void start(Stage stage, Dimension2D preferredSize) throws IOException {
         this.stage = stage;
 
-        NamedStage.Name name = (NamedStage.Name) stage.getUserData();
+        stage.sceneProperty().addListener((sceneProperty, oldScene, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(() -> {
+                    stage.sizeToScene();
 
-        DoublePreferencesEntry stageX = preferences.stageBounds.get(name.preferencesEntryName("X"));
-        DoublePreferencesEntry stageY = preferences.stageBounds.get(name.preferencesEntryName("Y"));
-        DoublePreferencesEntry stageWidth = preferences.stageBounds.get(name.preferencesEntryName("Width"));
-        DoublePreferencesEntry stageHeight = preferences.stageBounds.get(name.preferencesEntryName("Height"));
+                    SpecialStage.Special special = (SpecialStage.Special) stage.getUserData();
 
-        stage.setX(Optional.ofNullable(stageX.get()).orElse(stage.getX()));
-        stage.setY(Optional.ofNullable(stageY.get()).orElse(stage.getY()));
-        stage.setWidth(Optional.ofNullable(stageWidth.get()).orElse(stage.getWidth()));
-        stage.setHeight(Optional.ofNullable(stageHeight.get()).orElse(stage.getHeight()));
+                    DoublePreferencesEntry stageX = preferences.stageBounds.get(special.preferencesEntryName("X"));
+                    DoublePreferencesEntry stageY = preferences.stageBounds.get(special.preferencesEntryName("Y"));
+                    DoublePreferencesEntry stageWidth = preferences.stageBounds.get(special.preferencesEntryName("Width"));
+                    DoublePreferencesEntry stageHeight = preferences.stageBounds.get(special.preferencesEntryName("Height"));
 
-        stage.xProperty().addListener((property, oldX, newX) -> stageX.accept(newX.doubleValue()));
-        stage.yProperty().addListener((property, oldY, newY) -> stageY.accept(newY.doubleValue()));
-        stage.widthProperty().addListener((property, oldWidth, newWidth) -> stageWidth.accept(newWidth.doubleValue()));
-        stage.heightProperty().addListener((property, oldHeight, newHeight) -> stageHeight.accept(newHeight.doubleValue()));
-    }
+                    stage.setX(Optional.ofNullable(stageX.get()).orElse(stage.getX()));
+                    stage.setY(Optional.ofNullable(stageY.get()).orElse(stage.getY()));
 
-    protected <T extends Node> T lookup(String identifier, Class<T> type) {
-        return Optional.ofNullable(stage)
-            .map(Window::getScene)
-            .map(scene -> scene.lookup(identifier))
-            .filter(type::isInstance)
-            .map(type::cast)
-            .orElse(null);
+                    stage.setMinWidth(stage.getWidth());
+                    stage.setMinHeight(stage.getHeight());
+
+                    stage.setWidth(Optional.ofNullable(stageWidth.get()).orElse(preferredSize.getWidth()));
+                    stage.setHeight(Optional.ofNullable(stageHeight.get()).orElse(preferredSize.getHeight()));
+
+                    stage.xProperty().addListener((property, oldX, newX) -> stageX.accept(newX.doubleValue()));
+                    stage.yProperty().addListener((property, oldY, newY) -> stageY.accept(newY.doubleValue()));
+                    stage.widthProperty().addListener((property, oldWidth, newWidth) -> stageWidth.accept(newWidth.doubleValue()));
+                    stage.heightProperty().addListener((property, oldHeight, newHeight) -> stageHeight.accept(newHeight.doubleValue()));
+                });
+            }
+        });
     }
 
 }
