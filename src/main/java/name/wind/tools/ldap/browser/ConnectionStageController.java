@@ -1,8 +1,6 @@
 package name.wind.tools.ldap.browser;
 
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -10,6 +8,8 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import name.wind.common.fx.Alignment;
+import name.wind.common.fx.Fill;
 import name.wind.common.util.Builder;
 import name.wind.tools.ldap.browser.cdi.NamedStage;
 
@@ -20,11 +20,12 @@ import static java.util.Arrays.asList;
 
 @ApplicationScoped public class ConnectionStageController extends AbstractStageController {
 
-    private static final Insets defaultInsets = new Insets(4);
+    private static final Insets insets = new Insets(4);
 
     private Scene buildScene() {
         return new Scene(
             Builder.direct(GridPane::new)
+                .set(target -> target::setPadding, insets)
                 .add(target -> target::getColumnConstraints, asList(
                     Builder.direct(ColumnConstraints::new)
                         .set(constraints -> constraints::setHgrow, Priority.ALWAYS)
@@ -34,18 +35,52 @@ import static java.util.Arrays.asList;
                         .get()))
                 .add(gridPane -> gridPane::getChildren, asList(
                     Builder.direct(Label::new)
-                        .set(target -> target::setText, messageBundle.bundleString("ConnectionStageController.displayNameLabel"))
-                        .accept(target -> GridPane.setConstraints(target, 0, 0, 2, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER, defaultInsets))
+                        .set(target -> target::setText, bundle.bundleString("ConnectionStageController.displayNameLabel"))
+                        .accept(target -> GridPane.setConstraints(target, 0, 0, 2, 1))
+                        .accept(target -> GridPane.setMargin(target, insets))
+                        .accept(Alignment.LEFT_BASELINE::apply)
+                        .accept(Fill.NONE::apply)
                         .get(),
                     Builder.direct(TextField::new)
-                        .accept(target -> GridPane.setConstraints(target, 0, 1, 2, 1, HPos.CENTER, VPos.CENTER, Priority.ALWAYS, Priority.NEVER, defaultInsets))
-                        .get()))
+                        .accept(target -> GridPane.setConstraints(target, 0, 1, 2, 1))
+                        .accept(target -> GridPane.setMargin(target, insets))
+                        .accept(Alignment.CENTER_BASELINE::apply)
+                        .accept(Fill.HORIZONTAL::apply)
+                        .get(),
+                    Builder.direct(Label::new)
+                        .set(target -> target::setText, bundle.bundleString("ConnectionStageController.hostLabel"))
+                        .accept(target -> GridPane.setConstraints(target, 0, 2, 1, 1))
+                        .accept(target -> GridPane.setMargin(target, insets))
+                        .accept(Alignment.LEFT_BASELINE::apply)
+                        .accept(Fill.NONE::apply)
+                        .get(),
+                    Builder.direct(TextField::new)
+                        .accept(target -> GridPane.setConstraints(target, 0, 3, 1, 1))
+                        .accept(target -> GridPane.setMargin(target, insets))
+                        .accept(Alignment.CENTER_BASELINE::apply)
+                        .accept(Fill.HORIZONTAL::apply)
+                        .get(),
+                    Builder.direct(Label::new)
+                        .set(target -> target::setText, bundle.bundleString("ConnectionStageController.portLabel"))
+                        .accept(target -> GridPane.setConstraints(target, 1, 2, 1, 1))
+                        .accept(target -> GridPane.setMargin(target, insets))
+                        .accept(Alignment.LEFT_BASELINE::apply)
+                        .accept(Fill.NONE::apply)
+                        .get(),
+                    Builder.direct(TextField::new)
+                        .accept(target -> GridPane.setConstraints(target, 1, 3, 1, 1))
+                        .accept(target -> GridPane.setMargin(target, insets))
+                        .accept(Alignment.CENTER_BASELINE::apply)
+                        .accept(Fill.HORIZONTAL::apply)
+                        .get()
+                    ))
                 .get());
     }
 
-    private void start(@Observes @NamedStage("connectionStage") Stage stage) {
-        Builder.direct(() -> this.stage = stage)
-            .set(target -> target::setTitle, messageBundle.bundleString("ConnectionStageController.title"))
+    @Override protected void start(@Observes @NamedStage("connectionStage") Stage stage) {
+        super.start(stage);
+        Builder.direct(() -> stage)
+            .set(target -> target::setTitle, bundle.bundleString("ConnectionStageController.title"))
             .set(target -> target::setScene, buildScene())
             .get().show();
     }

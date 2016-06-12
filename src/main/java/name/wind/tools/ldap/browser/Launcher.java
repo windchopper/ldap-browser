@@ -2,9 +2,9 @@ package name.wind.tools.ldap.browser;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import name.wind.tools.ldap.browser.cdi.NamedStageLiteral;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
-import name.wind.tools.ldap.browser.cdi.NamedStageLiteral;
 
 public class Launcher extends Application {
 
@@ -12,7 +12,8 @@ public class Launcher extends Application {
 
     @Override public void init() throws Exception {
         super.init();
-        weldContainer = new Weld().initialize();
+        Weld weld = new Weld();
+        weldContainer = weld.initialize();
     }
 
     @Override public void stop() throws Exception {
@@ -22,7 +23,8 @@ public class Launcher extends Application {
 
     @Override public void start(Stage primaryStage) throws Exception {
         primaryStage.setUserData("connectionListStage");
-        weldContainer.getBeanManager().fireEvent(primaryStage, new NamedStageLiteral("connectionListStage"));
+        weldContainer.getBeanManager().fireEvent(
+            primaryStage, new NamedStageLiteral("connectionListStage"));
     }
 
     /*

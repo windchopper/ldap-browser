@@ -5,23 +5,25 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import name.wind.common.preferences.DoublePreferencesEntry;
 
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.Optional;
 
 public abstract class AbstractStageController {
 
-    @Inject protected MessageBundle messageBundle;
+    @Inject protected Bundle bundle;
+    @Inject protected Preferences preferences;
 
     protected Stage stage;
 
-    public void setup(@Observes Stage stage) {
+    protected void start(Stage stage) {
+        this.stage = stage;
+
         String identifier = (String) stage.getUserData();
 
-        DoublePreferencesEntry stageX = new DoublePreferencesEntry(AbstractStageController.class, identifier + "X");
-        DoublePreferencesEntry stageY = new DoublePreferencesEntry(AbstractStageController.class, identifier + "Y");
-        DoublePreferencesEntry stageWidth = new DoublePreferencesEntry(AbstractStageController.class, identifier + "Width");
-        DoublePreferencesEntry stageHeight = new DoublePreferencesEntry(AbstractStageController.class, identifier + "Height");
+        DoublePreferencesEntry stageX = preferences.stageBounds.get(identifier).get("x");
+        DoublePreferencesEntry stageY = preferences.stageBounds.get(identifier).get("y");
+        DoublePreferencesEntry stageWidth = preferences.stageBounds.get(identifier).get("width");
+        DoublePreferencesEntry stageHeight = preferences.stageBounds.get(identifier).get("height");
 
         stage.setX(Optional.ofNullable(stageX.get()).orElse(stage.getX()));
         stage.setY(Optional.ofNullable(stageY.get()).orElse(stage.getY()));
