@@ -1,4 +1,4 @@
-package ru.wind.tools.ldap.browser;
+package name.wind.tools.ldap.browser;
 
 import javax.naming.CompoundName;
 import javax.naming.InvalidNameException;

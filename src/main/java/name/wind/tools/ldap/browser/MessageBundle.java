@@ -1,4 +1,4 @@
-package ru.wind.tools.ldap.browser.cdi;
+package name.wind.tools.ldap.browser;
 
 import java.util.ResourceBundle;
 

@@ -1,10 +1,10 @@
-package ru.wind.tools.ldap.browser;
+package name.wind.tools.ldap.browser;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
-import ru.wind.tools.ldap.browser.cdi.NamedStageLiteral;
+import name.wind.tools.ldap.browser.cdi.NamedStageLiteral;
 
 public class Launcher extends Application {
 
@@ -21,7 +21,8 @@ public class Launcher extends Application {
     }
 
     @Override public void start(Stage primaryStage) throws Exception {
-        weldContainer.getBeanManager().fireEvent(primaryStage, new NamedStageLiteral("connectionList"));
+        primaryStage.setUserData("connectionListStage");
+        weldContainer.getBeanManager().fireEvent(primaryStage, new NamedStageLiteral("connectionListStage"));
     }
 
     /*

@@ -1,6 +1,5 @@
-package ru.wind.tools.ldap.browser.cdi;
+package name.wind.tools.ldap.browser.cdi;
 
-import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -14,6 +13,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
     FIELD,
     PARAMETER,
     METHOD
-}) public @interface PreferencesEntry {
-    @Nonbinding String value();
+}) public @interface NamedStage {
+    String value();
 }
