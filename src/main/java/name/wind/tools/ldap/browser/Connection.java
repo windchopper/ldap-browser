@@ -12,33 +12,6 @@ import java.util.Properties;
 
 public class Connection {
 
-    public enum TransportSecurity {
-
-        NONE("ldap"),
-        SECURED("ldaps");
-
-        final String scheme;
-
-        TransportSecurity(String scheme) {
-            this.scheme = scheme;
-        }
-
-    }
-
-    public enum AuthMethod {
-
-        NONE("none"),
-        SIMPLE("simple"),
-        STRONG("strong");
-
-        final String value;
-
-        AuthMethod(String value) {
-            this.value = value;
-        }
-
-    }
-
     private static final String VAL__DISPLAY_NAME = "displayName";
     private static final String VAL__HOST = "host";
     private static final String VAL__PORT = "port";

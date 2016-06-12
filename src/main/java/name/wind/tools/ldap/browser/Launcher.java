@@ -10,16 +10,17 @@ import static name.wind.tools.ldap.browser.cdi.NamedStage.Name;
 
 public class Launcher extends Application {
 
+    private Weld weld;
     private WeldContainer weldContainer;
 
     @Override public void init() throws Exception {
         super.init();
-        Weld weld = new Weld();
+        weld = new Weld();
         weldContainer = weld.initialize();
     }
 
     @Override public void stop() throws Exception {
-        weldContainer.close();
+        weld.shutdown();
         super.stop();
     }
 
