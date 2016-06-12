@@ -2,11 +2,11 @@ package name.wind.tools.ldap.browser;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import name.wind.tools.ldap.browser.cdi.NamedStageLiteral;
+import name.wind.tools.ldap.browser.annotations.NamedStageLiteral;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 
-import static name.wind.tools.ldap.browser.cdi.NamedStage.Name;
+import static name.wind.tools.ldap.browser.annotations.NamedStage.Name;
 
 public class Launcher extends Application {
 

@@ -1,4 +1,4 @@
-package name.wind.tools.ldap.browser.cdi;
+package name.wind.tools.ldap.browser.annotations;
 
 import javax.enterprise.util.AnnotationLiteral;
 

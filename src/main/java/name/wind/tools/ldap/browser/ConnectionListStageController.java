@@ -9,8 +9,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import name.wind.common.util.Builder;
-import name.wind.tools.ldap.browser.cdi.NamedStage;
-import name.wind.tools.ldap.browser.cdi.NamedStageLiteral;
+import name.wind.tools.ldap.browser.annotations.NamedStage;
+import name.wind.tools.ldap.browser.annotations.NamedStageLiteral;
+import name.wind.tools.ldap.browser.ldap.Connection;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -21,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
-import static name.wind.tools.ldap.browser.cdi.NamedStage.Name;
+import static name.wind.tools.ldap.browser.annotations.NamedStage.Name;
 
 @ApplicationScoped public class ConnectionListStageController extends AbstractStageController {
 

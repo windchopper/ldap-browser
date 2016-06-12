@@ -13,7 +13,8 @@ import javafx.stage.Stage;
 import name.wind.common.fx.Alignment;
 import name.wind.common.fx.Fill;
 import name.wind.common.util.Builder;
-import name.wind.tools.ldap.browser.cdi.NamedStage;
+import name.wind.tools.ldap.browser.annotations.NamedStage;
+import name.wind.tools.ldap.browser.ldap.AuthMethod;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -21,7 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import static java.util.Arrays.asList;
-import static name.wind.tools.ldap.browser.cdi.NamedStage.Name;
+import static name.wind.tools.ldap.browser.annotations.NamedStage.Name;
 
 @ApplicationScoped public class ConnectionStageController extends AbstractStageController {
 

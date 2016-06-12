@@ -1,4 +1,4 @@
-package name.wind.tools.ldap.browser;
+package name.wind.tools.ldap.browser.ldap;
 
 public enum AuthMethod {
 

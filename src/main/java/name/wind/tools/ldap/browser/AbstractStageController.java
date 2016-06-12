@@ -4,7 +4,7 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import name.wind.common.preferences.DoublePreferencesEntry;
-import name.wind.tools.ldap.browser.cdi.NamedStage;
+import name.wind.tools.ldap.browser.annotations.NamedStage;
 
 import javax.inject.Inject;
 import java.io.IOException;
