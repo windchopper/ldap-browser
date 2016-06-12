@@ -18,6 +18,7 @@ import javax.enterprise.event.Observes;
 import java.io.IOException;
 
 import static java.util.Arrays.asList;
+import static name.wind.tools.ldap.browser.cdi.NamedStage.Name;
 
 @ApplicationScoped public class ConnectionStageController extends AbstractStageController {
 
@@ -78,7 +79,7 @@ import static java.util.Arrays.asList;
                 .get());
     }
 
-    @Override protected void start(@Observes @NamedStage("connectionStage") Stage stage) throws IOException {
+    @Override protected void start(@Observes @NamedStage(Name.CONNECTION) Stage stage) throws IOException {
         super.start(stage);
         Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.bundleString("ConnectionStageController.title"))

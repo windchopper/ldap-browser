@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import name.wind.common.preferences.DoublePreferencesEntry;
+import name.wind.tools.ldap.browser.cdi.NamedStage;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -19,12 +20,12 @@ public abstract class AbstractStageController {
     protected void start(Stage stage) throws IOException {
         this.stage = stage;
 
-        String identifier = (String) stage.getUserData();
+        NamedStage.Name name = (NamedStage.Name) stage.getUserData();
 
-        DoublePreferencesEntry stageX = preferences.stageBounds.get(identifier).get("x");
-        DoublePreferencesEntry stageY = preferences.stageBounds.get(identifier).get("y");
-        DoublePreferencesEntry stageWidth = preferences.stageBounds.get(identifier).get("width");
-        DoublePreferencesEntry stageHeight = preferences.stageBounds.get(identifier).get("height");
+        DoublePreferencesEntry stageX = preferences.stageBounds.get(name.preferencesEntryName("X"));
+        DoublePreferencesEntry stageY = preferences.stageBounds.get(name.preferencesEntryName("Y"));
+        DoublePreferencesEntry stageWidth = preferences.stageBounds.get(name.preferencesEntryName("Width"));
+        DoublePreferencesEntry stageHeight = preferences.stageBounds.get(name.preferencesEntryName("Height"));
 
         stage.setX(Optional.ofNullable(stageX.get()).orElse(stage.getX()));
         stage.setY(Optional.ofNullable(stageY.get()).orElse(stage.getY()));

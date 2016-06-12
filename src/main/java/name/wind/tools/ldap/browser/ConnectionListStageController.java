@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static name.wind.tools.ldap.browser.cdi.NamedStage.Name;
 
 @ApplicationScoped public class ConnectionListStageController extends AbstractStageController {
 
@@ -38,9 +39,9 @@ import static java.util.Arrays.asList;
             Builder.direct(Stage::new)
                 .set(target -> target::initOwner, stage)
                 .set(target -> target::initModality, Modality.APPLICATION_MODAL)
-                .set(target -> target::setUserData, "connectionStage")
+                .set(target -> target::setUserData, Name.CONNECTION)
                 .get(),
-            new NamedStageLiteral("connectionStage"));
+            new NamedStageLiteral(Name.CONNECTION));
     }
 
     private Scene buildScene() throws IOException {
@@ -87,7 +88,7 @@ import static java.util.Arrays.asList;
                 .get());
     }
 
-    @Override protected void start(@Observes @NamedStage("connectionListStage") Stage stage) throws IOException {
+    @Override protected void start(@Observes @NamedStage(Name.CONNECTION_LIST) Stage stage) throws IOException {
         super.start(stage);
         Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.bundleString("ConnectionListStageController.title"))

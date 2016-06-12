@@ -6,6 +6,8 @@ import name.wind.tools.ldap.browser.cdi.NamedStageLiteral;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 
+import static name.wind.tools.ldap.browser.cdi.NamedStage.Name;
+
 public class Launcher extends Application {
 
     private WeldContainer weldContainer;
@@ -22,9 +24,9 @@ public class Launcher extends Application {
     }
 
     @Override public void start(Stage primaryStage) throws Exception {
-        primaryStage.setUserData("connectionListStage");
+        primaryStage.setUserData(Name.CONNECTION_LIST);
         weldContainer.getBeanManager().fireEvent(
-            primaryStage, new NamedStageLiteral("connectionListStage"));
+            primaryStage, new NamedStageLiteral(Name.CONNECTION_LIST));
     }
 
     /*

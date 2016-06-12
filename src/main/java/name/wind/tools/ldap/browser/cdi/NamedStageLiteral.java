@@ -4,14 +4,13 @@ import javax.enterprise.util.AnnotationLiteral;
 
 public class NamedStageLiteral extends AnnotationLiteral<NamedStage> implements NamedStage {
 
-    private final String value;
+    private final Name value;
 
-    public NamedStageLiteral(String value) {
+    public NamedStageLiteral(Name value) {
         this.value = value;
     }
 
-    @Override
-    public String value() {
+    @Override public Name value() {
         return value;
     }
 
