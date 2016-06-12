@@ -42,7 +42,7 @@ import static java.util.Arrays.asList;
             new NamedStageLiteral("connectionStage"));
     }
 
-    @SuppressWarnings("unchecked") private Scene buildScene() {
+    private Scene buildScene() {
         return new Scene(
             Builder.direct(BorderPane::new)
                 .set(target -> target::setCenter, Builder.direct(TableView<Connection>::new)
