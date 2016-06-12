@@ -3,8 +3,6 @@ package name.wind.tools.ldap.browser;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener.Change;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -27,7 +25,6 @@ import static java.util.Arrays.asList;
 @ApplicationScoped public class ConnectionListStageController extends AbstractStageController {
 
     @Inject private Preferences preferences;
-    @Inject private FXMLLoader fxmlLoader;
 
     private boolean selectedConnectionCountMatches(int min, int max) {
         return Optional.ofNullable(lookup("#connectionTableView", TableView.class))
@@ -47,10 +44,6 @@ import static java.util.Arrays.asList;
     }
 
     private Scene buildScene() throws IOException {
-        if (true) return new Scene(
-            fxmlLoader.load(ConnectionListStageController.class.getResourceAsStream("/name/wind/tools/ldap/browser/connectionListScene.fxml"))
-        );
-
         return new Scene(
             Builder.direct(BorderPane::new)
                 .set(target -> target::setCenter, Builder.direct(TableView<Connection>::new)

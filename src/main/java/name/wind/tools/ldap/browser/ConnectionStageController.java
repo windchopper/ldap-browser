@@ -15,7 +15,6 @@ import name.wind.tools.ldap.browser.cdi.NamedStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-
 import java.io.IOException;
 
 import static java.util.Arrays.asList;
