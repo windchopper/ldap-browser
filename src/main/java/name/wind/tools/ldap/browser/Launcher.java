@@ -4,7 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Dimension2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import name.wind.tools.ldap.browser.events.AfterStageConstructed;
+import name.wind.tools.ldap.browser.events.StageConstructed;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.literal.NamedLiteral;
@@ -27,13 +27,13 @@ public class Launcher extends Application {
 
     @Override public void start(Stage primaryStage) throws Exception {
         weldContainer.getBeanManager().fireEvent(
-            new AfterStageConstructed(
+            new StageConstructed(
                 primaryStage,
-                AfterStageConstructed.IDENTIFIER__CONNECTION_LIST,
+                StageConstructed.IDENTIFIER__CONNECTION_LIST,
                 new Dimension2D(
                     Screen.getPrimary().getVisualBounds().getWidth() / 2, Screen.getPrimary().getVisualBounds().getHeight() / 2)),
             new NamedLiteral(
-                AfterStageConstructed.IDENTIFIER__CONNECTION_LIST));
+                StageConstructed.IDENTIFIER__CONNECTION_LIST));
     }
 
     /*

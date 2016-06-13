@@ -2,11 +2,11 @@ package name.wind.tools.ldap.browser.events;
 
 import name.wind.tools.ldap.browser.ldap.Connection;
 
-public class ConnectionPulled {
+public class ConnectionEdit {
 
     private final Connection connection;
 
-    public ConnectionPulled(Connection connection) {
+    public ConnectionEdit(Connection connection) {
         this.connection = connection;
     }
 

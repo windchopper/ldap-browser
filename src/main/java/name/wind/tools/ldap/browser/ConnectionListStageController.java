@@ -2,8 +2,10 @@ package name.wind.tools.ldap.browser;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.geometry.Dimension2D;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -11,8 +13,11 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import name.wind.common.util.Builder;
-import name.wind.tools.ldap.browser.events.AfterStageConstructed;
-import name.wind.tools.ldap.browser.events.ConnectionPulled;
+import name.wind.common.util.ListUtils;
+import name.wind.common.util.Optional;
+import name.wind.tools.ldap.browser.events.ConnectionEdit;
+import name.wind.tools.ldap.browser.events.ConnectionEditCommitted;
+import name.wind.tools.ldap.browser.events.StageConstructed;
 import name.wind.tools.ldap.browser.ldap.AuthMethod;
 import name.wind.tools.ldap.browser.ldap.Connection;
 import name.wind.tools.ldap.browser.ldap.TransportSecurity;
@@ -23,12 +28,14 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static name.wind.common.util.SyntaxBums.with;
 
 @ApplicationScoped public class ConnectionListStageController extends AbstractStageController {
 
@@ -42,40 +49,89 @@ import static java.util.Arrays.asList;
     private MenuItem removeMenuItem;
     private MenuItem propertiesMenuItem;
 
-    private boolean selectedConnectionCountMatches(int min, int max) {
-        return Optional.ofNullable(connectionTableView)
-            .map(connectionTableView -> connectionTableView.getSelectionModel().getSelectedIndices().size())
-            .map(count -> count >= min && count <= max)
-            .orElse(false);
+    @SuppressWarnings("Convert2MethodRef") private Parent buildSceneRoot() {
+        return Builder.direct(BorderPane::new)
+            .set(target -> target::setCenter, connectionTableView = Builder.direct(TableView<Connection>::new)
+                .set(target -> target.getSelectionModel()::setSelectionMode, SelectionMode.SINGLE)
+                .set(target -> target::setColumnResizePolicy, TableView.CONSTRAINED_RESIZE_POLICY)
+                .add(target -> target::getColumns, asList(
+                    Builder.direct(() -> new TableColumn<Connection, String>())
+                        .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.columns.name"))
+                        .set(target -> target::setMaxWidth, Integer.MAX_VALUE * 50.)
+                        .set(target -> target::setMaxWidth, Integer.MAX_VALUE * 50.)
+                        .set(target -> target::setCellValueFactory, features -> new ReadOnlyStringWrapper(features.getValue().getName()))
+                        .get(),
+                    Builder.direct(() -> new TableColumn<Connection, String>())
+                        .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.columns.host"))
+                        .set(target -> target::setMaxWidth, Integer.MAX_VALUE * 30.)
+                        .set(target -> target::setCellValueFactory, features -> new ReadOnlyStringWrapper(features.getValue().getHost()))
+                        .get(),
+                    Builder.direct(() -> new TableColumn<Connection, String>())
+                        .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.columns.port"))
+                        .set(target -> target::setMaxWidth, Integer.MAX_VALUE * 20.)
+                        .set(target -> target::setCellValueFactory, features -> new ReadOnlyStringWrapper(
+                            Optional.of(features.getValue().getPort())
+                                .map(Object::toString)
+                                .orElse("")))
+                        .get()))
+                .set(target -> target::setContextMenu, Builder.direct(ContextMenu::new)
+                    .add(target -> target::getItems, asList(
+                        connectMenuItem = Builder.direct(MenuItem::new)
+                            .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.connect"))
+                            .get(),
+                        Builder.direct(SeparatorMenuItem::new)
+                            .get(),
+                        cloneMenuItem = Builder.direct(MenuItem::new)
+                            .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.clone"))
+                            .set(target -> target::setOnAction, this::clone)
+                            .get(),
+                        addMenuItem = Builder.direct(MenuItem::new)
+                            .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.add"))
+                            .set(target -> target::setOnAction, this::add)
+                            .get(),
+                        removeMenuItem = Builder.direct(MenuItem::new)
+                            .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.remove"))
+                            .set(target -> target::setOnAction, this::remove)
+                            .get(),
+                        Builder.direct(SeparatorMenuItem::new)
+                            .get(),
+                        propertiesMenuItem = Builder.direct(MenuItem::new)
+                            .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.properties"))
+                            .set(target -> target::setOnAction, this::properties)
+                            .get()))
+                    .get())
+                .add(target -> target::getItems, preferences.connections.get())
+                .get())
+            .get();
     }
 
-    private void newConnectionStage() {
+    private void openEdit() {
         CDI.current().getBeanManager().fireEvent(
-            new AfterStageConstructed(
+            new StageConstructed(
                 Builder.direct(Stage::new)
                     .set(target -> target::initOwner, stage)
                     .set(target -> target::initModality, Modality.APPLICATION_MODAL)
                     .get(),
-                AfterStageConstructed.IDENTIFIER__CONNECTION,
+                StageConstructed.IDENTIFIER__CONNECTION,
                 new Dimension2D(
                     Screen.getPrimary().getVisualBounds().getWidth() / 4, Screen.getPrimary().getVisualBounds().getHeight() / 4)),
             new NamedLiteral(
-                AfterStageConstructed.IDENTIFIER__CONNECTION));
+                StageConstructed.IDENTIFIER__CONNECTION));
     }
 
     private void clone(ActionEvent event) {
-        newConnectionStage();
+        openEdit();
         CDI.current().getBeanManager().fireEvent(
-            new ConnectionPulled(
+            new ConnectionEdit(
                 Builder.direct(connectionTableView.getSelectionModel().getSelectedItem()::clone)
                     .set(target -> target::setIdentifier, UUID.randomUUID().toString())
                     .get()));
     }
 
     private void add(ActionEvent event) {
-        newConnectionStage();
+        openEdit();
         CDI.current().getBeanManager().fireEvent(
-            new ConnectionPulled(
+            new ConnectionEdit(
                 Builder.direct(Connection::new)
                     .set(target -> target::setIdentifier, UUID.randomUUID().toString())
                     .set(target -> target::setTransportSecurity, TransportSecurity.NONE)
@@ -84,53 +140,54 @@ import static java.util.Arrays.asList;
                     .get()));
     }
 
-    private Scene buildScene() {
-        return new Scene(
-            Builder.direct(BorderPane::new)
-                .set(target -> target::setCenter, connectionTableView = Builder.direct(TableView<Connection>::new)
-                    .set(target -> target.getSelectionModel()::setSelectionMode, SelectionMode.SINGLE)
-                    .add(target -> target::getColumns, asList(
-                        new TableColumn<Connection, String>(bundle.getString("ConnectionListStageController.connectionTable.columns.name")),
-                        new TableColumn<Connection, String>(bundle.getString("ConnectionListStageController.connectionTable.columns.host")),
-                        new TableColumn<Connection, String>(bundle.getString("ConnectionListStageController.connectionTable.columns.port"))))
-                    .set(target -> target::setContextMenu, Builder.direct(ContextMenu::new)
-                        .add(target -> target::getItems, asList(
-                            connectMenuItem = Builder.direct(MenuItem::new)
-                                .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.connect"))
-                                .get(),
-                            Builder.direct(SeparatorMenuItem::new)
-                                .get(),
-                            cloneMenuItem = Builder.direct(MenuItem::new)
-                                .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.clone"))
-                                .set(target -> target::setOnAction, this::clone)
-                                .get(),
-                            addMenuItem = Builder.direct(MenuItem::new)
-                                .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.add"))
-                                .set(target -> target::setOnAction, this::add)
-                                .get(),
-                            removeMenuItem = Builder.direct(MenuItem::new)
-                                .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.remove"))
-                                .get(),
-                            Builder.direct(SeparatorMenuItem::new)
-                                .get(),
-                            propertiesMenuItem = Builder.direct(MenuItem::new)
-                                .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.properties"))
-                                .get()))
-                        .get())
-                    .add(target -> target::getItems, preferences.connections.get())
-                    .get())
-                .get());
+    private void remove(ActionEvent event) {
+        preferences.connections.accept(list -> {
+            with(connectionTableView.getSelectionModel()::getSelectedItem, removed -> {
+                list.removeIf(existent -> Objects.equals(existent.getIdentifier(), removed.getIdentifier()));
+                connectionTableView.getItems().removeIf(item -> Objects.equals(item.getIdentifier(), removed.getIdentifier()));
+            });
+            return list;
+        });
     }
 
-    private void start(@Observes @Named(AfterStageConstructed.IDENTIFIER__CONNECTION_LIST) AfterStageConstructed afterStageConstructed) {
+    private void properties(ActionEvent event) {
+        openEdit();
+        CDI.current().getBeanManager().fireEvent(
+            new ConnectionEdit(
+                connectionTableView.getSelectionModel().getSelectedItem()));
+    }
+
+    private void connectionEditCommited(@Observes ConnectionEditCommitted connectionEditCommitted) {
+        preferences.connections.accept(list -> {
+            with(connectionEditCommitted::connection, edited -> Optional.convert(
+                    list.stream()
+                        .filter(existent -> Objects.equals(existent.getIdentifier(), edited.getIdentifier()))
+                        .findAny())
+                .ifPresent(existent -> {
+                    existent.copyFrom(edited);
+                    connectionTableView.getItems().set(
+                        ListUtils.indexOf(connectionTableView.getItems(), item -> Objects.equals(item.getIdentifier(), edited.getIdentifier())),
+                        edited);
+                })
+                .ifNotPresent(() -> {
+                    list.add(edited);
+                    connectionTableView.getItems().add(edited);
+                }));
+            return list;
+        });
+    }
+
+    private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION_LIST) StageConstructed stageConstructed) {
         super.start(
-            afterStageConstructed.stage(),
-            afterStageConstructed.identifier(),
-            afterStageConstructed.preferredSize());
+            stageConstructed.stage(),
+            stageConstructed.identifier(),
+            stageConstructed.preferredSize());
 
         Stage connectionListStage = Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.getString("ConnectionListStageController.title"))
-            .set(target -> target::setScene, buildScene())
+            .set(target -> target::setScene, Builder.direct(() -> new Scene(buildSceneRoot()))
+                .add(target -> target::getStylesheets, Collections.singletonList("/name/wind/tools/ldap/browser/connectionListStage.css"))
+                .get())
             .get();
 
         BooleanBinding selectionEmptyBinding = Bindings.isNull(
