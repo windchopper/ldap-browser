@@ -19,7 +19,7 @@ public class ConnectionListPreferencesEntry extends ObjectCollectionPreferencesE
                 return connection;
             },
             connection -> {
-                StructuredValue structuredValue = new StructuredValue(connection.getDisplayName());
+                StructuredValue structuredValue = new StructuredValue(Integer.toHexString(System.identityHashCode(connection)));
                 connection.save(structuredValue);
                 return structuredValue;
             });

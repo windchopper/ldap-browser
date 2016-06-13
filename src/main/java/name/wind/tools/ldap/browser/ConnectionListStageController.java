@@ -11,21 +11,23 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import name.wind.common.util.Builder;
-import name.wind.tools.ldap.browser.annotations.SpecialStage;
-import name.wind.tools.ldap.browser.annotations.SpecialStageLiteral;
+import name.wind.tools.ldap.browser.events.AfterStageConstructed;
+import name.wind.tools.ldap.browser.events.ConnectionPulled;
+import name.wind.tools.ldap.browser.ldap.AuthMethod;
 import name.wind.tools.ldap.browser.ldap.Connection;
+import name.wind.tools.ldap.browser.ldap.TransportSecurity;
+import org.jboss.weld.literal.NamedLiteral;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
-import java.io.IOException;
+import javax.inject.Named;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
-import static name.wind.tools.ldap.browser.annotations.SpecialStage.Special;
 
 @ApplicationScoped public class ConnectionListStageController extends AbstractStageController {
 
@@ -41,17 +43,45 @@ import static name.wind.tools.ldap.browser.annotations.SpecialStage.Special;
             .orElse(false);
     }
 
-    private void add(ActionEvent event) {
+    private void newConnectionStage() {
         CDI.current().getBeanManager().fireEvent(
-            Builder.direct(Stage::new)
-                .set(target -> target::initOwner, stage)
-                .set(target -> target::initModality, Modality.APPLICATION_MODAL)
-                .set(target -> target::setUserData, SpecialStage.Special.CONNECTION)
-                .get(),
-            new SpecialStageLiteral(Special.CONNECTION));
+            new AfterStageConstructed(
+                Builder.direct(Stage::new)
+                    .set(target -> target::initOwner, stage)
+                    .set(target -> target::initModality, Modality.APPLICATION_MODAL)
+                    .get(),
+                AfterStageConstructed.IDENTIFIER__CONNECTION,
+                new Dimension2D(
+                    Screen.getPrimary().getVisualBounds().getWidth() / 4, Screen.getPrimary().getVisualBounds().getHeight() / 4)),
+            new NamedLiteral(
+                AfterStageConstructed.IDENTIFIER__CONNECTION));
     }
 
-    private Scene buildScene() throws IOException {
+    private void clone(ActionEvent event) {
+        newConnectionStage();
+
+        Connection connection = connectionTableView.getSelectionModel().getSelectedItem().clone();
+        connectionTableView.getItems().add(connection);
+
+        CDI.current().getBeanManager().fireEvent(
+            new ConnectionPulled(connection));
+    }
+
+    private void add(ActionEvent event) {
+        newConnectionStage();
+
+        Connection connection = new Connection();
+        connectionTableView.getItems().add(connection);
+
+        connection.setTransportSecurity(TransportSecurity.NONE);
+        connection.setAuthMethod(AuthMethod.SIMPLE);
+        connection.setPort(389);
+
+        CDI.current().getBeanManager().fireEvent(
+            new ConnectionPulled(connection));
+    }
+
+    private Scene buildScene() {
         return new Scene(
             Builder.direct(BorderPane::new)
                 .set(target -> target::setCenter, connectionTableView = Builder.direct(TableView<Connection>::new)
@@ -70,6 +100,7 @@ import static name.wind.tools.ldap.browser.annotations.SpecialStage.Special;
                             Builder.direct(MenuItem::new)
                                 .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.clone"))
                                 .accept(target -> target.disableProperty().bind(Bindings.createBooleanBinding(() -> selectedConnectionCountMatches(1, 1)).not()))
+                                .set(target -> target::setOnAction, this::clone)
                                 .get(),
                             Builder.direct(MenuItem::new)
                                 .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.add"))
@@ -94,11 +125,11 @@ import static name.wind.tools.ldap.browser.annotations.SpecialStage.Special;
                 .get());
     }
 
-    private void start(@Observes @SpecialStage(Special.CONNECTION_LIST) Stage stage) throws IOException {
-        start(stage, new Dimension2D(
-            Screen.getPrimary().getVisualBounds().getWidth() / 2,
-            Screen.getPrimary().getVisualBounds().getHeight() / 2
-        ));
+    private void start(@Observes @Named(AfterStageConstructed.IDENTIFIER__CONNECTION_LIST) AfterStageConstructed afterStageConstructed) {
+        super.start(
+            afterStageConstructed.stage(),
+            afterStageConstructed.identifier(),
+            afterStageConstructed.preferredSize());
 
         Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.getString("ConnectionListStageController.title"))

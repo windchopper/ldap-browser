@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 
-public class Connection {
+public class Connection implements Cloneable {
 
     private static final String VAL__DISPLAY_NAME = "displayName";
     private static final String VAL__HOST = "host";
@@ -25,12 +25,27 @@ public class Connection {
 
     private String displayName;
     private String host;
-    private Number port = 389;
+    private Number port;
     private String username;
     private String password;
-    private TransportSecurity transportSecurity = TransportSecurity.NONE;
-    private AuthMethod authMethod = AuthMethod.SIMPLE;
+    private TransportSecurity transportSecurity;
+    private AuthMethod authMethod;
     private LdapName base;
+
+    @Override public Connection clone() {
+        Connection clone = new Connection();
+
+        clone.setDisplayName(displayName);
+        clone.setHost(host);
+        clone.setPort(port);
+        clone.setUsername(username);
+        clone.setPassword(password);
+        clone.setTransportSecurity(transportSecurity);
+        clone.setAuthMethod(authMethod);
+        clone.setBase(base);
+
+        return clone;
+    }
 
     public void load(Map<String, String> values) {
         displayName = values.get(VAL__DISPLAY_NAME);
@@ -59,12 +74,12 @@ public class Connection {
     public void save(Map<String, String> values) {
         values.put(VAL__DISPLAY_NAME, displayName);
         values.put(VAL__HOST, host);
-        values.put(VAL__PORT, port.toString());
+        values.put(VAL__PORT, port == null ? null : port.toString());
         values.put(VAL__USERNAME, username);
         values.put(VAL__PASSWORD, password);
-        values.put(VAL__TRANSPORT_SECURITY, transportSecurity.name());
-        values.put(VAL__AUTH_METHOD, authMethod.name());
-        values.put(VAL__BASE, base.toString());
+        values.put(VAL__TRANSPORT_SECURITY, transportSecurity == null ? null : transportSecurity.name());
+        values.put(VAL__AUTH_METHOD, authMethod == null ? null : authMethod.name());
+        values.put(VAL__BASE, base == null ? null : base.toString());
     }
 
     public DirContext newDirContext() throws URISyntaxException, NamingException {

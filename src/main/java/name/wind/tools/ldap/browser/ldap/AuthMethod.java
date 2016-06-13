@@ -8,7 +8,8 @@ public enum AuthMethod {
 
     NONE("none", false, Bundle.bundle.getString("ConnectionStageController.authMethod.none")),
     SIMPLE("simple", true, Bundle.bundle.getString("ConnectionStageController.authMethod.simple")),
-    STRONG("strong", true, Bundle.bundle.getString("ConnectionStageController.authMethod.strong"));
+    STRONG("strong", true, Bundle.bundle.getString("ConnectionStageController.authMethod.strong")),
+    ;
 
     private static class Bundle {
 

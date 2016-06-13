@@ -1,13 +1,13 @@
 package name.wind.tools.ldap.browser;
 
 import javafx.application.Application;
+import javafx.geometry.Dimension2D;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
-import name.wind.tools.ldap.browser.annotations.SpecialStage;
-import name.wind.tools.ldap.browser.annotations.SpecialStageLiteral;
+import name.wind.tools.ldap.browser.events.AfterStageConstructed;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
-
-import static name.wind.tools.ldap.browser.annotations.SpecialStage.Special;
+import org.jboss.weld.literal.NamedLiteral;
 
 public class Launcher extends Application {
 
@@ -26,9 +26,14 @@ public class Launcher extends Application {
     }
 
     @Override public void start(Stage primaryStage) throws Exception {
-        primaryStage.setUserData(Special.CONNECTION_LIST);
         weldContainer.getBeanManager().fireEvent(
-            primaryStage, new SpecialStageLiteral(SpecialStage.Special.CONNECTION_LIST));
+            new AfterStageConstructed(
+                primaryStage,
+                AfterStageConstructed.IDENTIFIER__CONNECTION_LIST,
+                new Dimension2D(
+                    Screen.getPrimary().getVisualBounds().getWidth() / 2, Screen.getPrimary().getVisualBounds().getHeight() / 2)),
+            new NamedLiteral(
+                AfterStageConstructed.IDENTIFIER__CONNECTION_LIST));
     }
 
     /*
