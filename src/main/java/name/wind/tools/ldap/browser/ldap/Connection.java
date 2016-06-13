@@ -12,7 +12,8 @@ import java.util.Properties;
 
 public class Connection implements Cloneable {
 
-    private static final String VAL__DISPLAY_NAME = "displayName";
+    private static final String VAL__IDENTIFIER = "identifier";
+    private static final String VAL__NAME = "name";
     private static final String VAL__HOST = "host";
     private static final String VAL__PORT = "port";
     private static final String VAL__USERNAME = "username";
@@ -23,7 +24,8 @@ public class Connection implements Cloneable {
 
     private static final String TYPE__LDAP_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 
-    private String displayName;
+    private String identifier;
+    private String name;
     private String host;
     private Number port;
     private String username;
@@ -32,47 +34,66 @@ public class Connection implements Cloneable {
     private AuthMethod authMethod;
     private LdapName base;
 
+    public Connection() {
+    }
+
+    public Connection(Connection connection) {
+        this();
+        copyFrom(connection);
+    }
+
     @Override public Connection clone() {
-        Connection clone = new Connection();
+        return new Connection(this);
+    }
 
-        clone.setDisplayName(displayName);
-        clone.setHost(host);
-        clone.setPort(port);
-        clone.setUsername(username);
-        clone.setPassword(password);
-        clone.setTransportSecurity(transportSecurity);
-        clone.setAuthMethod(authMethod);
-        clone.setBase(base);
-
-        return clone;
+    public void copyFrom(Connection that) {
+        identifier = that.identifier;
+        name = that.name;
+        host = that.host;
+        port = that.port;
+        username = that.username;
+        password = that.password;
+        transportSecurity = that.transportSecurity;
+        authMethod = that.authMethod;
+        base = that.base;
     }
 
     public void load(Map<String, String> values) {
-        displayName = values.get(VAL__DISPLAY_NAME);
+        identifier = values.get(VAL__IDENTIFIER);
+        name = values.get(VAL__NAME);
         host = values.get(VAL__HOST);
 
-        try {
-            port = Integer.parseInt(values.get(VAL__PORT));
-        } catch (NumberFormatException ignored) {
-        }
+        if (values.containsKey(VAL__PORT))
+            try {
+                port = Integer.parseInt(values.get(VAL__PORT));
+            } catch (NumberFormatException ignored) {
+            }
 
         username = values.get(VAL__USERNAME);
         password = values.get(VAL__PASSWORD);
 
-        try {
-            transportSecurity = TransportSecurity.valueOf(values.get(VAL__TRANSPORT_SECURITY));
-            authMethod = AuthMethod.valueOf(values.get(VAL__AUTH_METHOD));
-        } catch (IllegalArgumentException ignored) {
-        }
+        if (values.containsKey(VAL__TRANSPORT_SECURITY))
+            try {
+                transportSecurity = TransportSecurity.valueOf(values.get(VAL__TRANSPORT_SECURITY));
+            } catch (IllegalArgumentException ignored) {
+            }
 
-        try {
-            base = new LdapName(values.get(VAL__BASE));
-        } catch (InvalidNameException ignored) {
-        }
+        if (values.containsKey(VAL__AUTH_METHOD))
+            try {
+                authMethod = AuthMethod.valueOf(values.get(VAL__AUTH_METHOD));
+            } catch (IllegalArgumentException ignored) {
+            }
+
+        if (values.containsKey(VAL__BASE))
+            try {
+                base = new LdapName(values.get(VAL__BASE));
+            } catch (InvalidNameException ignored) {
+            }
     }
 
     public void save(Map<String, String> values) {
-        values.put(VAL__DISPLAY_NAME, displayName);
+        values.put(VAL__IDENTIFIER, identifier);
+        values.put(VAL__NAME, name);
         values.put(VAL__HOST, host);
         values.put(VAL__PORT, port == null ? null : port.toString());
         values.put(VAL__USERNAME, username);
@@ -106,12 +127,20 @@ public class Connection implements Cloneable {
         return new InitialDirContext(environment);
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getHost() {
@@ -173,7 +202,8 @@ public class Connection implements Cloneable {
     @Override public int hashCode() {
         int result = 0;
 
-        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+        result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (host != null ? host.hashCode() : 0);
         result = 31 * result + (port != null ? port.hashCode() : 0);
         result = 31 * result + (username != null ? username.hashCode() : 0);
@@ -191,7 +221,8 @@ public class Connection implements Cloneable {
 
         Connection that = (Connection) object;
 
-        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
+        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (host != null ? !host.equals(that.host) : that.host != null) return false;
         if (port != null ? !port.equals(that.port) : that.port != null) return false;
         if (username != null ? !username.equals(that.username) : that.username != null) return false;

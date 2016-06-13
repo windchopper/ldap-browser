@@ -1,7 +1,7 @@
 package name.wind.tools.ldap.browser;
 
 import javafx.beans.binding.Bindings;
-import javafx.collections.ListChangeListener.Change;
+import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.geometry.Dimension2D;
 import javafx.scene.Scene;
@@ -25,7 +25,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
@@ -35,6 +36,11 @@ import static java.util.Arrays.asList;
 
     @Inject private Preferences preferences;
     private TableView<Connection> connectionTableView;
+    private MenuItem connectMenuItem;
+    private MenuItem cloneMenuItem;
+    private MenuItem addMenuItem;
+    private MenuItem removeMenuItem;
+    private MenuItem propertiesMenuItem;
 
     private boolean selectedConnectionCountMatches(int min, int max) {
         return Optional.ofNullable(connectionTableView)
@@ -59,68 +65,59 @@ import static java.util.Arrays.asList;
 
     private void clone(ActionEvent event) {
         newConnectionStage();
-
-        Connection connection = connectionTableView.getSelectionModel().getSelectedItem().clone();
-        connectionTableView.getItems().add(connection);
-
         CDI.current().getBeanManager().fireEvent(
-            new ConnectionPulled(connection));
+            new ConnectionPulled(
+                Builder.direct(connectionTableView.getSelectionModel().getSelectedItem()::clone)
+                    .set(target -> target::setIdentifier, UUID.randomUUID().toString())
+                    .get()));
     }
 
     private void add(ActionEvent event) {
         newConnectionStage();
-
-        Connection connection = new Connection();
-        connectionTableView.getItems().add(connection);
-
-        connection.setTransportSecurity(TransportSecurity.NONE);
-        connection.setAuthMethod(AuthMethod.SIMPLE);
-        connection.setPort(389);
-
         CDI.current().getBeanManager().fireEvent(
-            new ConnectionPulled(connection));
+            new ConnectionPulled(
+                Builder.direct(Connection::new)
+                    .set(target -> target::setIdentifier, UUID.randomUUID().toString())
+                    .set(target -> target::setTransportSecurity, TransportSecurity.NONE)
+                    .set(target -> target::setAuthMethod, AuthMethod.SIMPLE)
+                    .set(target -> target::setPort, 389)
+                    .get()));
     }
 
     private Scene buildScene() {
         return new Scene(
             Builder.direct(BorderPane::new)
                 .set(target -> target::setCenter, connectionTableView = Builder.direct(TableView<Connection>::new)
+                    .set(target -> target.getSelectionModel()::setSelectionMode, SelectionMode.SINGLE)
                     .add(target -> target::getColumns, asList(
                         new TableColumn<Connection, String>(bundle.getString("ConnectionListStageController.connectionTable.columns.name")),
                         new TableColumn<Connection, String>(bundle.getString("ConnectionListStageController.connectionTable.columns.host")),
                         new TableColumn<Connection, String>(bundle.getString("ConnectionListStageController.connectionTable.columns.port"))))
                     .set(target -> target::setContextMenu, Builder.direct(ContextMenu::new)
                         .add(target -> target::getItems, asList(
-                            Builder.direct(MenuItem::new)
+                            connectMenuItem = Builder.direct(MenuItem::new)
                                 .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.connect"))
-                                .accept(target -> target.disableProperty().bind(Bindings.createBooleanBinding(() -> selectedConnectionCountMatches(1, 1)).not()))
                                 .get(),
                             Builder.direct(SeparatorMenuItem::new)
                                 .get(),
-                            Builder.direct(MenuItem::new)
+                            cloneMenuItem = Builder.direct(MenuItem::new)
                                 .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.clone"))
-                                .accept(target -> target.disableProperty().bind(Bindings.createBooleanBinding(() -> selectedConnectionCountMatches(1, 1)).not()))
                                 .set(target -> target::setOnAction, this::clone)
                                 .get(),
-                            Builder.direct(MenuItem::new)
+                            addMenuItem = Builder.direct(MenuItem::new)
                                 .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.add"))
                                 .set(target -> target::setOnAction, this::add)
                                 .get(),
-                            Builder.direct(MenuItem::new)
+                            removeMenuItem = Builder.direct(MenuItem::new)
                                 .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.remove"))
-                                .accept(target -> target.disableProperty().bind(Bindings.createBooleanBinding(() -> selectedConnectionCountMatches(1, Integer.MAX_VALUE)).not()))
                                 .get(),
                             Builder.direct(SeparatorMenuItem::new)
                                 .get(),
-                            Builder.direct(MenuItem::new)
+                            propertiesMenuItem = Builder.direct(MenuItem::new)
                                 .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.properties"))
-                                .accept(target -> target.disableProperty().bind(Bindings.createBooleanBinding(() -> selectedConnectionCountMatches(1, 1)).not()))
                                 .get()))
                         .get())
                     .add(target -> target::getItems, preferences.connections.get())
-                    .accept(target -> target.getItems().addListener((Change<? extends Connection> change) -> preferences.connections.accept(
-                        change.getList().stream().collect(
-                            Collectors.toList()))))
                     .get())
                 .get());
     }
@@ -131,10 +128,17 @@ import static java.util.Arrays.asList;
             afterStageConstructed.identifier(),
             afterStageConstructed.preferredSize());
 
-        Builder.direct(() -> stage)
+        Stage connectionListStage = Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.getString("ConnectionListStageController.title"))
             .set(target -> target::setScene, buildScene())
-            .get().show();
+            .get();
+
+        BooleanBinding selectionEmptyBinding = Bindings.isNull(
+            connectionTableView.getSelectionModel().selectedItemProperty());
+        Stream.of(connectMenuItem, cloneMenuItem, removeMenuItem, propertiesMenuItem).forEach(
+            item -> item.disableProperty().bind(selectionEmptyBinding));
+
+        connectionListStage.show();
     }
 
 }

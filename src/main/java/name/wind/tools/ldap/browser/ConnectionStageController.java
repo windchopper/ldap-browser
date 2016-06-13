@@ -30,7 +30,7 @@ import static java.util.Arrays.asList;
     private static final ResourceBundle bundle = ResourceBundle.getBundle("name.wind.tools.ldap.browser.i18n.messages");
     private static final Insets insets = new Insets(4.);
 
-    private TextField displayNameTextField;
+    private TextField nameTextField;
     private TextField hostTextField;
     private Spinner<Number> portSpinner;
     private ComboBox<String> baseComboBox;
@@ -56,13 +56,13 @@ import static java.util.Arrays.asList;
                         .get()))
                 .add(gridPane -> gridPane::getChildren, asList(
                     Builder.direct(Label::new)
-                        .set(target -> target::setText, bundle.getString("ConnectionStageController.displayNameLabel"))
+                        .set(target -> target::setText, bundle.getString("ConnectionStageController.nameLabel"))
                         .accept(target -> GridPane.setConstraints(target, 0, 0, 3, 1))
                         .accept(target -> GridPane.setMargin(target, insets))
                         .accept(Alignment.LEFT_BASELINE::apply)
                         .accept(Fill.NONE::apply)
                         .get(),
-                    displayNameTextField = Builder.direct(TextField::new)
+                    nameTextField = Builder.direct(TextField::new)
                         .accept(target -> GridPane.setConstraints(target, 0, 1, 3, 1))
                         .accept(target -> GridPane.setMargin(target, insets))
                         .accept(Alignment.CENTER_BASELINE::apply)
@@ -169,6 +169,7 @@ import static java.util.Arrays.asList;
 
     private void connectionPulled(@Observes ConnectionPulled connectionPulled) {
         Connection connection = connectionPulled.connection();
+
         portSpinner.getValueFactory().setValue(connection.getPort());
         transportSecurityCheckBox.setSelected(connection.getTransportSecurity() == TransportSecurity.SECURED);
         authMethodComboBox.setValue(connection.getAuthMethod());
