@@ -28,14 +28,10 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
-import static name.wind.common.util.SyntaxBums.with;
 
 @ApplicationScoped public class ConnectionListStageController extends AbstractStageController {
 
@@ -142,10 +138,11 @@ import static name.wind.common.util.SyntaxBums.with;
 
     private void remove(ActionEvent event) {
         preferences.connections.accept(list -> {
-            with(connectionTableView.getSelectionModel()::getSelectedItem, removed -> {
-                list.removeIf(existent -> Objects.equals(existent.getIdentifier(), removed.getIdentifier()));
-                connectionTableView.getItems().removeIf(item -> Objects.equals(item.getIdentifier(), removed.getIdentifier()));
-            });
+            Connection selectedItem = connectionTableView.getSelectionModel().getSelectedItem();
+
+            list.removeIf(existent -> Objects.equals(existent.getIdentifier(), selectedItem.getIdentifier()));
+            connectionTableView.getItems().removeIf(item -> Objects.equals(item.getIdentifier(), selectedItem.getIdentifier()));
+
             return list;
         });
     }
@@ -159,22 +156,26 @@ import static name.wind.common.util.SyntaxBums.with;
 
     private void connectionEditCommited(@Observes ConnectionEditCommitted connectionEditCommitted) {
         preferences.connections.accept(list -> {
-            with(connectionEditCommitted::connection, edited -> Optional.convert(
-                    list.stream()
-                        .filter(existent -> Objects.equals(existent.getIdentifier(), edited.getIdentifier()))
-                        .findAny())
-                .ifPresent(existent -> {
-                    existent.copyFrom(edited);
-                    connectionTableView.getItems().set(
-                        ListUtils.indexOf(connectionTableView.getItems(), item -> Objects.equals(item.getIdentifier(), edited.getIdentifier())),
-                        edited);
-                })
-                .ifNotPresent(() -> {
-                    list.add(edited);
-                    connectionTableView.getItems().add(edited);
-                }));
+            persistCommitted(list, connectionEditCommitted.connection());
             return list;
         });
+    }
+
+    private void persistCommitted(List<Connection> list, Connection committed) {
+        Optional.convert(list.stream()
+                .filter(existent -> Objects.equals(existent.getIdentifier(), committed.getIdentifier()))
+                .findAny())
+            .ifPresent(existent -> {
+                existent.copyFrom(committed);
+                connectionTableView.getItems().set(
+                    ListUtils.indexOf(connectionTableView.getItems(), item -> Objects.equals(
+                        item.getIdentifier(), committed.getIdentifier())),
+                    committed);
+            })
+            .ifNotPresent(() -> {
+                list.add(committed);
+                connectionTableView.getItems().add(committed);
+            });
     }
 
     private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION_LIST) StageConstructed stageConstructed) {

@@ -11,7 +11,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import name.wind.common.fx.Alignment;
 import name.wind.common.fx.Fill;
-import name.wind.common.fx.NumberSpinnerValueFactory;
+import name.wind.common.fx.spinner.FlexibleSpinnerValueFactory;
+import name.wind.common.fx.spinner.NumberType;
 import name.wind.common.util.Builder;
 import name.wind.tools.ldap.browser.events.ConnectionEdit;
 import name.wind.tools.ldap.browser.events.ConnectionEditCommitted;
@@ -31,7 +32,6 @@ import java.util.Collections;
 import java.util.ResourceBundle;
 
 import static java.util.Arrays.asList;
-import static name.wind.common.util.SyntaxBums.with;
 
 @ApplicationScoped public class ConnectionStageController extends AbstractStageController {
 
@@ -101,7 +101,7 @@ import static name.wind.common.util.SyntaxBums.with;
                     .accept(target -> GridPane.setMargin(target, insets))
                     .accept(Alignment.CENTER_BASELINE::apply)
                     .accept(Fill.HORIZONTAL::apply)
-                    .set(target -> target::setValueFactory, new NumberSpinnerValueFactory(0, Integer.MAX_VALUE, 0))
+                    .set(target -> target::setValueFactory, new FlexibleSpinnerValueFactory<>(NumberType.INTEGER, 0, Integer.MAX_VALUE, 0))
                     .get(),
                 Builder.direct(Label::new)
                     .set(target -> target::setText, bundle.getString("ConnectionStageController.baseLabel"))
@@ -181,24 +181,27 @@ import static name.wind.common.util.SyntaxBums.with;
 
     private void save(ActionEvent event) {
         CDI.current().getBeanManager().fireEvent(
-            new ConnectionEditCommitted(
-                with(Connection::new, connection -> {
-                    connection.setIdentifier(connectionIdentifier);
-                    connection.setName(nameTextField.getText());
-                    connection.setHost(hostTextField.getText());
-                    connection.setPort(portSpinner.getValue());
-                    connection.setUsername(null);
-                    connection.setPassword(null);
-                    connection.setTransportSecurity(transportSecurityCheckBox.isSelected() ? TransportSecurity.SECURED : TransportSecurity.NONE);
-                    connection.setAuthMethod(authMethodComboBox.getValue());
-                    if (baseComboBox.getValue() != null)
-                        try {
-                            connection.setBase(
-                                new LdapName(baseComboBox.getValue()));
-                        } catch (InvalidNameException ignored) {
-                        }
-                })));
+            new ConnectionEditCommitted(saveConnection(
+                new Connection())));
         stage.close();
+    }
+
+    private Connection saveConnection(Connection connection) {
+        connection.setIdentifier(connectionIdentifier);
+        connection.setName(nameTextField.getText());
+        connection.setHost(hostTextField.getText());
+        connection.setPort(portSpinner.getValue());
+        connection.setUsername(null);
+        connection.setPassword(null);
+        connection.setTransportSecurity(transportSecurityCheckBox.isSelected() ? TransportSecurity.SECURED : TransportSecurity.NONE);
+        connection.setAuthMethod(authMethodComboBox.getValue());
+        if (baseComboBox.getValue() != null)
+            try {
+                connection.setBase(
+                    new LdapName(baseComboBox.getValue()));
+            } catch (InvalidNameException ignored) {
+            }
+        return connection;
     }
 
     private void cancel(ActionEvent event) {
@@ -206,14 +209,17 @@ import static name.wind.common.util.SyntaxBums.with;
     }
 
     private void connectionEdit(@Observes ConnectionEdit connectionEdit) {
-        with(connectionEdit::connection, connection -> {
-            connectionIdentifier = connection.getIdentifier();
-            nameTextField.setText(connection.getName());
-            hostTextField.setText(connection.getHost());
-            portSpinner.getValueFactory().setValue(connection.getPort());
-            transportSecurityCheckBox.setSelected(connection.getTransportSecurity() == TransportSecurity.SECURED);
-            authMethodComboBox.setValue(connection.getAuthMethod());
-        });
+        loadConnection(
+            connectionEdit.connection());
+    }
+
+    private void loadConnection(Connection connection) {
+        connectionIdentifier = connection.getIdentifier();
+        nameTextField.setText(connection.getName());
+        hostTextField.setText(connection.getHost());
+        portSpinner.getValueFactory().setValue(connection.getPort());
+        transportSecurityCheckBox.setSelected(connection.getTransportSecurity() == TransportSecurity.SECURED);
+        authMethodComboBox.setValue(connection.getAuthMethod());
     }
 
     private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION) StageConstructed stageConstructed) {
