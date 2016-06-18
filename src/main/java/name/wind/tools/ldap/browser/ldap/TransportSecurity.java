@@ -2,13 +2,23 @@ package name.wind.tools.ldap.browser.ldap;
 
 public enum TransportSecurity {
 
-    NONE("ldap"),
-    SECURED("ldaps");
+    NONE("ldap", false),
+    SECURED("ldaps", true);
 
-    final String scheme;
+    private final String scheme;
+    private final boolean secured;
 
-    TransportSecurity(String scheme) {
+    TransportSecurity(String scheme, boolean secured) {
         this.scheme = scheme;
+        this.secured = secured;
+    }
+
+    public String scheme() {
+        return scheme;
+    }
+
+    public boolean secured() {
+        return secured;
     }
 
 }

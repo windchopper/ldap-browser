@@ -11,7 +11,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import name.wind.common.fx.Alignment;
 import name.wind.common.fx.Fill;
-import name.wind.common.fx.binding.UnifiedBidirectionalBinding;
 import name.wind.common.fx.spinner.FlexibleSpinnerValueFactory;
 import name.wind.common.fx.spinner.NumberType;
 import name.wind.common.util.Builder;
@@ -26,10 +25,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Named;
+import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import java.util.*;
 
 import static java.util.Arrays.asList;
+import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidirectional;
 
 @ApplicationScoped public class ConnectionStageController extends AbstractStageController {
 
@@ -194,26 +195,26 @@ import static java.util.Arrays.asList;
         connection = connectionEdit.connection();
         connection.save(backup);
 
-
-
         nameTextField.textProperty().bindBidirectional(connection.nameProperty);
         hostTextField.textProperty().bindBidirectional(connection.hostProperty);
         portSpinner.getValueFactory().valueProperty().bindBidirectional(connection.portProperty);
 
-        UnifiedBidirectionalBinding.bindBidirectional(
+        bindBidirectional(
             transportSecurityCheckBox.selectedProperty(),
             connection.transportSecurityProperty,
             flag -> flag ? TransportSecurity.SECURED : TransportSecurity.NONE,
-            transportSecurity -> transportSecurity == TransportSecurity.SECURED);
+            TransportSecurity::secured);
 
         authMethodComboBox.valueProperty().bindBidirectional(connection.authMethodProperty);
 
-        UnifiedBidirectionalBinding.bindBidirectional(
-            baseComboBox.valueProperty(), connection.baseProperty, string -> {
+        bindBidirectional(
+            baseComboBox.valueProperty(),
+            connection.baseProperty,
+            string -> {
                 if (string != null)
                     try {
                         return new LdapName(string);
-                    } catch (Exception ignored) {
+                    } catch (InvalidNameException ignored) {
                     }
                 return null;
             },
