@@ -11,6 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import name.wind.common.fx.Alignment;
 import name.wind.common.fx.Fill;
+import name.wind.common.fx.binding.UnifiedBidirectionalBinding;
 import name.wind.common.fx.spinner.FlexibleSpinnerValueFactory;
 import name.wind.common.fx.spinner.NumberType;
 import name.wind.common.util.Builder;
@@ -25,11 +26,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Named;
-import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 
@@ -38,7 +36,9 @@ import static java.util.Arrays.asList;
     private static final ResourceBundle bundle = ResourceBundle.getBundle("name.wind.tools.ldap.browser.i18n.messages");
     private static final Insets insets = new Insets(4.);
 
-    private String connectionIdentifier;
+    private Connection connection;
+    private Map<String, String> backup = new HashMap<>();
+
     private TextField nameTextField;
     private TextField hostTextField;
     private Spinner<Number> portSpinner;
@@ -181,45 +181,47 @@ import static java.util.Arrays.asList;
 
     private void save(ActionEvent event) {
         CDI.current().getBeanManager().fireEvent(
-            new ConnectionEditCommitted(saveConnection(
-                new Connection())));
+            new ConnectionEditCommitted(connection));
         stage.close();
     }
 
-    private Connection saveConnection(Connection connection) {
-        connection.setIdentifier(connectionIdentifier);
-        connection.setName(nameTextField.getText());
-        connection.setHost(hostTextField.getText());
-        connection.setPort(portSpinner.getValue());
-        connection.setUsername(null);
-        connection.setPassword(null);
-        connection.setTransportSecurity(transportSecurityCheckBox.isSelected() ? TransportSecurity.SECURED : TransportSecurity.NONE);
-        connection.setAuthMethod(authMethodComboBox.getValue());
-        if (baseComboBox.getValue() != null)
-            try {
-                connection.setBase(
-                    new LdapName(baseComboBox.getValue()));
-            } catch (InvalidNameException ignored) {
-            }
-        return connection;
-    }
-
     private void cancel(ActionEvent event) {
+        connection.load(backup);
         stage.close();
     }
 
     private void connectionEdit(@Observes ConnectionEdit connectionEdit) {
-        loadConnection(
-            connectionEdit.connection());
-    }
+        connection = connectionEdit.connection();
+        connection.save(backup);
 
-    private void loadConnection(Connection connection) {
-        connectionIdentifier = connection.getIdentifier();
-        nameTextField.setText(connection.getName());
-        hostTextField.setText(connection.getHost());
-        portSpinner.getValueFactory().setValue(connection.getPort());
-        transportSecurityCheckBox.setSelected(connection.getTransportSecurity() == TransportSecurity.SECURED);
-        authMethodComboBox.setValue(connection.getAuthMethod());
+
+
+        nameTextField.textProperty().bindBidirectional(connection.nameProperty);
+        hostTextField.textProperty().bindBidirectional(connection.hostProperty);
+        portSpinner.getValueFactory().valueProperty().bindBidirectional(connection.portProperty);
+
+        UnifiedBidirectionalBinding.bindBidirectional(
+            transportSecurityCheckBox.selectedProperty(),
+            connection.transportSecurityProperty,
+            flag -> flag ? TransportSecurity.SECURED : TransportSecurity.NONE,
+            transportSecurity -> transportSecurity == TransportSecurity.SECURED);
+
+        authMethodComboBox.valueProperty().bindBidirectional(connection.authMethodProperty);
+
+        UnifiedBidirectionalBinding.bindBidirectional(
+            baseComboBox.valueProperty(), connection.baseProperty, string -> {
+                if (string != null)
+                    try {
+                        return new LdapName(string);
+                    } catch (Exception ignored) {
+                    }
+                return null;
+            },
+            ldapName -> {
+                if (ldapName != null)
+                    return ldapName.toString();
+                return null;
+            });
     }
 
     private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION) StageConstructed stageConstructed) {
