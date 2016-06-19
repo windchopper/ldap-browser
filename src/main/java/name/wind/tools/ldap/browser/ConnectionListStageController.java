@@ -3,14 +3,16 @@ package name.wind.tools.ldap.browser;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
+import javafx.geometry.Dimension2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import name.wind.common.util.Builder;
-import name.wind.common.util.Optional;
+import name.wind.common.util.Value;
 import name.wind.tools.ldap.browser.events.ConnectionEdit;
 import name.wind.tools.ldap.browser.events.ConnectionEditCommitted;
 import name.wind.tools.ldap.browser.events.StageConstructed;
@@ -101,7 +103,10 @@ import static java.util.Arrays.asList;
                     .set(target -> target::initOwner, stage)
                     .set(target -> target::initModality, Modality.APPLICATION_MODAL)
                     .get(),
-                StageConstructed.IDENTIFIER__CONNECTION),
+                StageConstructed.IDENTIFIER__CONNECTION,
+                Value.of(Screen.getPrimary().getVisualBounds())
+                    .map(visualBounds -> new Dimension2D(visualBounds.getWidth() / 3, visualBounds.getHeight() / 3))
+                    .get()),
             new NamedLiteral(
                 StageConstructed.IDENTIFIER__CONNECTION));
     }
@@ -146,7 +151,8 @@ import static java.util.Arrays.asList;
     }
 
     private void persistCommitted(List<Connection> list, Connection committed) {
-        Optional.of(list.stream()
+        Value.of(
+            list.stream()
                 .filter(existent -> existent.same(committed))
                 .findAny())
             .ifNotPresent(() -> {

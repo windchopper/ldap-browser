@@ -1,5 +1,6 @@
 package name.wind.tools.ldap.browser.events;
 
+import javafx.geometry.Dimension2D;
 import javafx.stage.Stage;
 
 public class StageConstructed {
@@ -9,10 +10,12 @@ public class StageConstructed {
 
     private final Stage stage;
     private final String identifier;
+    private final Dimension2D preferredSize;
 
-    public StageConstructed(Stage stage, String identifier) {
+    public StageConstructed(Stage stage, String identifier, Dimension2D preferredSize) {
         this.stage = stage;
         this.identifier = identifier;
+        this.preferredSize = preferredSize;
     }
 
     public Stage stage() {
@@ -21,6 +24,10 @@ public class StageConstructed {
 
     public String identifier() {
         return identifier;
+    }
+
+    public Dimension2D preferredSize() {
+        return preferredSize;
     }
 
 }

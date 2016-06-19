@@ -4,7 +4,6 @@ import javafx.beans.property.*;
 import name.wind.common.fx.util.PropertyUtils;
 import name.wind.common.preferences.ObjectCollectionPreferencesEntry;
 import name.wind.common.preferences.StructuredPreferencesEntry.StructuredValue;
-import name.wind.common.util.Optional;
 import name.wind.common.util.Value;
 
 import javax.naming.InvalidNameException;
@@ -27,11 +26,6 @@ public class Connection implements Cloneable {
     private static final String KEY__TRANSPORT_SECURITY = "transportSecurity";
     private static final String KEY__AUTH_METHOD = "authMethod";
     private static final String KEY__BASE = "base";
-
-    private static final String DEF__PORT = "389";
-    private static final String DEF__TRANSPORT_SECURITY = TransportSecurity.NONE.name();
-    private static final String DEF__AUTH_METHOD = AuthMethod.SIMPLE.name();
-    private static final String DEF__BASE = "";
 
     private static final String TYPE__LDAP_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 
@@ -76,7 +70,7 @@ public class Connection implements Cloneable {
         usernameProperty.set(values.get(KEY__USERNAME));
         passwordProperty.set(values.get(KEY__PASSWORD));
 
-        Optional.of(values.get(KEY__PORT))
+        Value.of(values.get(KEY__PORT))
             .filter(value -> value != null && value.length() > 0)
             .ifPresent(value -> {
                 try {
@@ -85,7 +79,7 @@ public class Connection implements Cloneable {
                 }
             });
 
-        Optional.of(values.get(KEY__TRANSPORT_SECURITY))
+        Value.of(values.get(KEY__TRANSPORT_SECURITY))
             .filter(value -> value != null && value.length() > 0)
             .ifPresent(value -> {
                 try {
@@ -94,7 +88,7 @@ public class Connection implements Cloneable {
                 }
             });
 
-        Optional.of(values.get(KEY__AUTH_METHOD))
+        Value.of(values.get(KEY__AUTH_METHOD))
             .filter(value -> value != null && value.length() > 0)
             .ifPresent(value -> {
                 try {
@@ -103,7 +97,7 @@ public class Connection implements Cloneable {
                 }
             });
 
-        Optional.of(values.get(KEY__BASE))
+        Value.of(values.get(KEY__BASE))
             .filter(value -> value != null && value.length() > 0)
             .ifPresent(value -> {
                 try {
@@ -117,12 +111,12 @@ public class Connection implements Cloneable {
         values.put(KEY__IDENTIFIER, identifier);
         values.put(KEY__NAME, nameProperty.get());
         values.put(KEY__HOST, hostProperty.get());
-        values.put(KEY__PORT, Optional.of(portProperty.get()).map(Object::toString).orElse(null));
+        values.put(KEY__PORT, Value.of(portProperty.get()).map(Object::toString).orElse(null));
         values.put(KEY__USERNAME, usernameProperty.get());
         values.put(KEY__PASSWORD, passwordProperty.get());
-        values.put(KEY__TRANSPORT_SECURITY, Optional.of(transportSecurityProperty.get()).map(Enum::name).orElse(null));
-        values.put(KEY__AUTH_METHOD, Optional.of(authMethodProperty.get()).map(Enum::name).orElse(null));
-        values.put(KEY__BASE, Optional.of(baseProperty.get()).map(Object::toString).orElse(null));
+        values.put(KEY__TRANSPORT_SECURITY, Value.of(transportSecurityProperty.get()).map(Enum::name).orElse(null));
+        values.put(KEY__AUTH_METHOD, Value.of(authMethodProperty.get()).map(Enum::name).orElse(null));
+        values.put(KEY__BASE, Value.of(baseProperty.get()).map(Object::toString).orElse(null));
     }
 
     public static ObjectCollectionPreferencesEntry<Connection, List<Connection>> connectionListPreferencesEntry(Class<?> invoker, String name) {
@@ -132,11 +126,11 @@ public class Connection implements Cloneable {
             ArrayList::new,
             structuredValue -> Value.of(
                     new Connection())
-                .with(connection -> connection.load(structuredValue))
+                .ifPresent(connection -> connection.load(structuredValue))
                 .get(),
             connection -> Value.of(
                     new StructuredValue(connection.identifier))
-                .with(connection::save)
+                .ifPresent(connection::save)
                 .get()
         );
     }
