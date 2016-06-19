@@ -98,6 +98,7 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .accept(Fill.NONE::apply)
                     .get(),
                 portSpinner = Builder.direct(() -> new Spinner<Number>())
+                    .set(target -> target::setMaxWidth, Double.POSITIVE_INFINITY)
                     .accept(target -> GridPane.setConstraints(target, 2, 3, 1, 1))
                     .accept(target -> GridPane.setMargin(target, insets))
                     .accept(Alignment.CENTER_BASELINE::apply)
