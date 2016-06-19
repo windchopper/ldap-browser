@@ -3,6 +3,7 @@ package name.wind.tools.ldap.browser;
 import javafx.geometry.Dimension2D;
 import javafx.scene.Node;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import name.wind.common.fx.ExtraProperties;
 import name.wind.common.fx.behavior.WindowApplyStoredBoundsBehavior;
 import name.wind.common.util.Value;
@@ -14,17 +15,16 @@ import name.wind.common.util.Value;
     protected void start(Stage stage, String identifier, Dimension2D preferredSize) {
         this.stage = stage;
         stage.getProperties().put(ExtraProperties.PROPERTY__WINDOW_IDENTIFIER, identifier);
+        new WindowApplyStoredBoundsBehavior(window -> initializeInitialSize(window, preferredSize)).apply(stage);
+    }
 
-        new WindowApplyStoredBoundsBehavior(window -> {
-            if (preferredSize == null) {
-                window.sizeToScene();
-            } else {
-                window.setWidth(preferredSize.getWidth());
-                window.setHeight(preferredSize.getHeight());
-            }
-
-            window.centerOnScreen();
-        }).apply(stage);
+    protected void initializeInitialSize(Window window, Dimension2D preferredSize) {
+        if (preferredSize == null) {
+            window.sizeToScene();
+        } else {
+            window.setWidth(preferredSize.getWidth());
+            window.setHeight(preferredSize.getHeight());
+        }
     }
 
     protected <T extends Node> T lookup(String selector, Class<T> type) {
