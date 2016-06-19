@@ -99,8 +99,6 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .accept(Fill.NONE::apply)
                     .get(),
                 portSpinner = Builder.direct(() -> new Spinner<Number>())
-                    .set(target -> target::setMinWidth, 20.)
-                    .set(target -> target::setMaxWidth, Double.POSITIVE_INFINITY)
                     .accept(target -> GridPane.setConstraints(target, 2, 3, 1, 1))
                     .accept(target -> GridPane.setMargin(target, insets))
                     .accept(Alignment.CENTER_BASELINE::apply)
@@ -116,14 +114,12 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .get(),
                 baseComboBox = Builder.direct(() -> new ComboBox<String>())
                     .set(target -> target::setEditable, true)
-                    .set(target -> target::setMaxWidth, Double.POSITIVE_INFINITY)
                     .accept(target -> GridPane.setConstraints(target, 0, 5, 2, 1))
                     .accept(target -> GridPane.setMargin(target, insets))
                     .accept(Alignment.LEFT_BASELINE::apply)
                     .accept(Fill.HORIZONTAL::apply)
                     .get(),
                 Builder.direct(Button::new)
-                    .set(target -> target::setMaxWidth, Double.POSITIVE_INFINITY)
                     .set(target -> target::setText, bundle.getString("ConnectionStageController.fetchBaseButton"))
                     .accept(target -> GridPane.setConstraints(target, 2, 5, 1, 1))
                     .accept(target -> GridPane.setMargin(target, insets))
@@ -145,7 +141,6 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .accept(Fill.NONE::apply)
                     .get(),
                 authMethodComboBox = Builder.direct(() -> new ComboBox<AuthMethod>())
-                    .set(target -> target::setMaxWidth, Double.POSITIVE_INFINITY)
                     .accept(target -> GridPane.setConstraints(target, 2, 6, 1, 1))
                     .accept(target -> GridPane.setMargin(target, insets))
                     .accept(Alignment.LEFT_BASELINE::apply)
@@ -161,7 +156,6 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .accept(Fill.HORIZONTAL::apply)
                     .get(),
                 Builder.direct(Button::new)
-                    .set(target -> target::setMaxWidth, Double.POSITIVE_INFINITY)
                     .set(target -> target::setText, bundle.getString("ConnectionStageController.saveButton"))
                     .set(target -> target::setOnAction, this::save)
                     .set(target -> target::setDefaultButton, true)
@@ -171,7 +165,6 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .accept(Fill.HORIZONTAL::apply)
                     .get(),
                 Builder.direct(Button::new)
-                    .set(target -> target::setMaxWidth, Double.POSITIVE_INFINITY)
                     .set(target -> target::setText, bundle.getString("ConnectionStageController.cancelButton"))
                     .set(target -> target::setOnAction, this::cancel)
                     .set(target -> target::setCancelButton, true)
