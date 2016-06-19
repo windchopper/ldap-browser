@@ -12,6 +12,10 @@ public class StageConstructed {
     private final String identifier;
     private final Dimension2D preferredSize;
 
+    public StageConstructed(Stage stage, String identifier) {
+        this(stage, identifier, null);
+    }
+
     public StageConstructed(Stage stage, String identifier, Dimension2D preferredSize) {
         this.stage = stage;
         this.identifier = identifier;

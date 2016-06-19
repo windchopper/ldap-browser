@@ -104,10 +104,7 @@ import static java.util.Arrays.asList;
                     .set(target -> target::initModality, Modality.APPLICATION_MODAL)
                     .set(target -> target::setResizable, false)
                     .get(),
-                StageConstructed.IDENTIFIER__CONNECTION,
-                Value.of(Screen.getPrimary().getVisualBounds())
-                    .map(visualBounds -> new Dimension2D(visualBounds.getWidth() / 3, visualBounds.getHeight() / 3))
-                    .get()),
+                StageConstructed.IDENTIFIER__CONNECTION),
             new NamedLiteral(
                 StageConstructed.IDENTIFIER__CONNECTION));
     }
