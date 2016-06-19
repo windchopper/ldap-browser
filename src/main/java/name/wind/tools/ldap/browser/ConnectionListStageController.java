@@ -102,6 +102,7 @@ import static java.util.Arrays.asList;
                 Builder.direct(Stage::new)
                     .set(target -> target::initOwner, stage)
                     .set(target -> target::initModality, Modality.APPLICATION_MODAL)
+                    .set(target -> target::setResizable, false)
                     .get(),
                 StageConstructed.IDENTIFIER__CONNECTION,
                 Value.of(Screen.getPrimary().getVisualBounds())
