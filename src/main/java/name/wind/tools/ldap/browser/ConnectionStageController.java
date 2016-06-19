@@ -26,6 +26,10 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Named;
 import javax.naming.InvalidNameException;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapName;
 import java.util.*;
 
@@ -121,6 +125,7 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .get(),
                 Builder.direct(Button::new)
                     .set(target -> target::setText, bundle.getString("ConnectionStageController.fetchBaseButton"))
+                    .set(target -> target::setOnAction, this::fetchBase)
                     .accept(target -> GridPane.setConstraints(target, 2, 5, 1, 1))
                     .accept(target -> GridPane.setMargin(target, insets))
                     .accept(Alignment.CENTER_BASELINE::apply)
@@ -174,6 +179,25 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .accept(Fill.HORIZONTAL::apply)
                     .get()))
             .get();
+    }
+
+    private void fetchBase(ActionEvent event) {
+        try {
+            DirContext context = connection.newDirContext();
+
+            try {
+                Attributes attributes = context.getAttributes("", new String[] { "namingContexts" });
+                NamingEnumeration<? extends Attribute> all = attributes.getAll();
+
+                while (all.hasMoreElements()) {
+                    System.out.println(all.next());
+                }
+            } finally {
+                context.close();
+            }
+        } catch (Exception thrown) {
+            thrown.printStackTrace();
+        }
     }
 
     private void save(ActionEvent event) {

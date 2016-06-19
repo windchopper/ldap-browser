@@ -143,7 +143,9 @@ public class Connection implements Cloneable {
             null,
             hostProperty.get(),
             portProperty.get(),
-            baseProperty.get().toString(),
+            Value.of(baseProperty.get())
+                .map(Object::toString)
+                .orElse(null),
             null,
             null);
 
