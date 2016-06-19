@@ -85,6 +85,7 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .accept(Fill.NONE::apply)
                     .get(),
                 hostTextField = Builder.direct(TextField::new)
+                    .set(target -> target::setMinWidth, 20.)
                     .accept(target -> GridPane.setConstraints(target, 0, 3, 2, 1))
                     .accept(target -> GridPane.setMargin(target, insets))
                     .accept(Alignment.CENTER_BASELINE::apply)
@@ -98,6 +99,7 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
                     .accept(Fill.NONE::apply)
                     .get(),
                 portSpinner = Builder.direct(() -> new Spinner<Number>())
+                    .set(target -> target::setMinWidth, 20.)
                     .set(target -> target::setMaxWidth, Double.POSITIVE_INFINITY)
                     .accept(target -> GridPane.setConstraints(target, 2, 3, 1, 1))
                     .accept(target -> GridPane.setMargin(target, insets))
@@ -230,7 +232,8 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
     private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION) StageConstructed stageConstructed) {
         super.start(
             stageConstructed.stage(),
-            stageConstructed.identifier());
+            stageConstructed.identifier(),
+            stageConstructed.preferredSize());
 
         Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.getString("ConnectionStageController.title"))

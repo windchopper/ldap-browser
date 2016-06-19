@@ -164,7 +164,8 @@ import static java.util.Arrays.asList;
     private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION_LIST) StageConstructed stageConstructed) {
         super.start(
             stageConstructed.stage(),
-            stageConstructed.identifier());
+            stageConstructed.identifier(),
+            stageConstructed.preferredSize());
 
         Stage connectionListStage = Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.getString("ConnectionListStageController.title"))
