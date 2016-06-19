@@ -3,13 +3,11 @@ package name.wind.tools.ldap.browser;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
-import javafx.geometry.Dimension2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import name.wind.common.util.Builder;
 import name.wind.common.util.Optional;
@@ -103,9 +101,7 @@ import static java.util.Arrays.asList;
                     .set(target -> target::initOwner, stage)
                     .set(target -> target::initModality, Modality.APPLICATION_MODAL)
                     .get(),
-                StageConstructed.IDENTIFIER__CONNECTION,
-                new Dimension2D(
-                    Screen.getPrimary().getVisualBounds().getWidth() / 4, Screen.getPrimary().getVisualBounds().getHeight() / 4)),
+                StageConstructed.IDENTIFIER__CONNECTION),
             new NamedLiteral(
                 StageConstructed.IDENTIFIER__CONNECTION));
     }
@@ -162,8 +158,7 @@ import static java.util.Arrays.asList;
     private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION_LIST) StageConstructed stageConstructed) {
         super.start(
             stageConstructed.stage(),
-            stageConstructed.identifier(),
-            stageConstructed.preferredSize());
+            stageConstructed.identifier());
 
         Stage connectionListStage = Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.getString("ConnectionListStageController.title"))

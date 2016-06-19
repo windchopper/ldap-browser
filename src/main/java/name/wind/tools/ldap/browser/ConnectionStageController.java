@@ -198,6 +198,7 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
 
         nameTextField.textProperty().bindBidirectional(connection.nameProperty);
         hostTextField.textProperty().bindBidirectional(connection.hostProperty);
+
         portSpinner.getValueFactory().valueProperty().bindBidirectional(connection.portProperty);
 
         bindBidirectional(
@@ -229,8 +230,7 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
     private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION) StageConstructed stageConstructed) {
         super.start(
             stageConstructed.stage(),
-            stageConstructed.identifier(),
-            stageConstructed.preferredSize());
+            stageConstructed.identifier());
 
         Builder.direct(() -> stage)
             .set(target -> target::setTitle, bundle.getString("ConnectionStageController.title"))

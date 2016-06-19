@@ -1,8 +1,6 @@
 package name.wind.tools.ldap.browser;
 
 import javafx.application.Application;
-import javafx.geometry.Dimension2D;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import name.wind.tools.ldap.browser.events.StageConstructed;
 import org.jboss.weld.environment.se.Weld;
@@ -29,9 +27,7 @@ public class Launcher extends Application {
         weldContainer.getBeanManager().fireEvent(
             new StageConstructed(
                 primaryStage,
-                StageConstructed.IDENTIFIER__CONNECTION_LIST,
-                new Dimension2D(
-                    Screen.getPrimary().getVisualBounds().getWidth() / 2, Screen.getPrimary().getVisualBounds().getHeight() / 2)),
+                StageConstructed.IDENTIFIER__CONNECTION_LIST),
             new NamedLiteral(
                 StageConstructed.IDENTIFIER__CONNECTION_LIST));
     }
