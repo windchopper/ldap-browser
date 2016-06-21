@@ -4,7 +4,6 @@ import javafx.geometry.Dimension2D;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import name.wind.common.fx.ExtraProperties;
 import name.wind.common.fx.behavior.WindowApplyStoredBoundsBehavior;
 import name.wind.common.util.Value;
 
@@ -13,9 +12,8 @@ import name.wind.common.util.Value;
     protected Stage stage;
 
     protected void start(Stage stage, String identifier, Dimension2D preferredSize) {
-        this.stage = stage;
-        stage.getProperties().put(ExtraProperties.PROPERTY__WINDOW_IDENTIFIER, identifier);
-        new WindowApplyStoredBoundsBehavior(window -> initializeInitialSize(window, preferredSize)).apply(stage);
+        new WindowApplyStoredBoundsBehavior(identifier, window -> initializeInitialSize(window, preferredSize))
+            .apply(this.stage = stage);
     }
 
     protected void initializeInitialSize(Window window, Dimension2D preferredSize) {
