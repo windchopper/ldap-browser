@@ -11,6 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import name.wind.common.fx.Alignment;
 import name.wind.common.fx.Fill;
+import name.wind.common.fx.binding.UnifiedBidirectionalBinding;
 import name.wind.common.fx.spinner.FlexibleSpinnerValueFactory;
 import name.wind.common.fx.spinner.NumberType;
 import name.wind.common.util.Builder;
@@ -38,7 +39,6 @@ import java.util.ResourceBundle;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidirectional;
 
 @ApplicationScoped public class ConnectionStageController extends AbstractStageController {
 
@@ -273,7 +273,7 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
 
         portSpinner.getValueFactory().valueProperty().bindBidirectional(connection.portProperty);
 
-        bindBidirectional(
+        new UnifiedBidirectionalBinding<>(
             transportSecurityCheckBox.selectedProperty(),
             connection.transportSecurityProperty,
             flag -> flag ? TransportSecurity.SECURED : TransportSecurity.NONE,
@@ -281,7 +281,7 @@ import static name.wind.common.fx.binding.UnifiedBidirectionalBinding.bindBidire
 
         authMethodComboBox.valueProperty().bindBidirectional(connection.authMethodProperty);
 
-        bindBidirectional(
+        new UnifiedBidirectionalBinding<>(
             baseComboBox.valueProperty(),
             connection.baseProperty,
             string -> {
