@@ -28,6 +28,21 @@
             <artifactId>common</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>name.wind.common</groupId>
+            <artifactId>common-preferences</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>name.wind.common</groupId>
+            <artifactId>common-fx</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>name.wind.common</groupId>
+            <artifactId>common-cdi</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
