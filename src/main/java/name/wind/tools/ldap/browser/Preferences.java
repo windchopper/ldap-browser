@@ -11,7 +11,7 @@ import java.util.List;
 
 @Dependent public class Preferences {
 
-    public final PreferencesStorage<ComplexValue> complexStorage = new DefaultComplexPreferencesStorage("name.wind.tools.ldap.browser", "ldapBrowserPreferences");
+    public final PreferencesStorage<ComplexValue> complexStorage = new DefaultComplexPreferencesStorage("name/wind/tools/ldap/browser/ldapBrowserPreferences");
     public final PreferencesEntry<List<Connection>> connections = Connection.connectionListPreferencesEntry(complexStorage, "connections");
 
 }
