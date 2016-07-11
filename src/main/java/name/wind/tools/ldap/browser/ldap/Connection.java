@@ -2,11 +2,11 @@ package name.wind.tools.ldap.browser.ldap;
 
 import javafx.beans.property.*;
 import name.wind.common.fx.util.PropertyUtils;
+import name.wind.common.preferences.ComplexValue;
 import name.wind.common.preferences.DefaultPreferencesEntry;
 import name.wind.common.preferences.PreferencesEntry;
 import name.wind.common.preferences.PreferencesEntryType;
 import name.wind.common.preferences.PreferencesEntryType.ComplexCollectionType;
-import name.wind.common.preferences.store.ComplexValue;
 import name.wind.common.preferences.store.PreferencesStorage;
 import name.wind.common.util.Value;
 
