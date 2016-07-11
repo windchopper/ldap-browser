@@ -1,11 +1,13 @@
 package name.wind.tools.ldap.browser.ldap;
 
 import javafx.beans.property.*;
-import javafx.util.Pair;
 import name.wind.common.fx.util.PropertyUtils;
-import name.wind.common.preferences.store.StructuredPreferencesStore;
-import name.wind.common.preferences.store.StructuredValue;
-import name.wind.common.preferences.typical.ObjectCollectionPreferencesEntry;
+import name.wind.common.preferences.DefaultPreferencesEntry;
+import name.wind.common.preferences.PreferencesEntry;
+import name.wind.common.preferences.PreferencesEntryType;
+import name.wind.common.preferences.PreferencesEntryType.ComplexCollectionType;
+import name.wind.common.preferences.store.ComplexValue;
+import name.wind.common.preferences.store.PreferencesStorage;
 import name.wind.common.util.Value;
 
 import javax.naming.InvalidNameException;
@@ -16,8 +18,6 @@ import javax.naming.ldap.LdapName;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-
-import static java.util.stream.Collectors.toMap;
 
 public class Connection implements Cloneable {
 
@@ -123,30 +123,15 @@ public class Connection implements Cloneable {
         values.put(KEY__BASE, Value.of(baseProperty.get()).map(Object::toString).orElse(null));
     }
 
-    public static ObjectCollectionPreferencesEntry<Connection, List<Connection>> connectionListPreferencesEntry(StructuredPreferencesStore store, String name) {
-        return new ObjectCollectionPreferencesEntry<>(
-            store,
-            name,
-            ArrayList::new,
-            structuredValue -> Value.of(
-                    new Connection())
-                .ifPresent(connection -> connection.load(structuredValue.valueNames().stream()
-                    .map(valueName -> new Pair<>(valueName, structuredValue.value(valueName)))
-                    .collect(
-                        toMap(
-                            Pair::getKey,
-                            Pair::getValue))
-                ))
-                .get(),
-            connection -> Value.of(
-                    new StructuredValue())
-                .ifPresent(structuredValue -> {
-                    Map<String, String> values = new HashMap<>();
-                    connection.save(values);
-                    values.entrySet().forEach(entry -> structuredValue.putValue(entry.getKey(), entry.getValue()));
-                })
-                .get()
-        );
+    public static PreferencesEntry<List<Connection>> connectionListPreferencesEntry(PreferencesStorage<ComplexValue> storage, String name) {
+        return new DefaultPreferencesEntry<>(
+            storage, name, new ComplexCollectionType<>(ArrayList::new, new PreferencesEntryType<>(
+                source -> Value.of(Connection::new)
+                    .ifPresent(connection -> connection.load(source.attributes()))
+                    .get(),
+                source -> Value.of(ComplexValue::new)
+                    .ifPresent(complexValue -> source.save(complexValue.attributes()))
+                    .get())));
     }
 
     public DirContext newDirContext() throws URISyntaxException, NamingException {
