@@ -24,7 +24,7 @@
             <version>2.3.4.Final</version>
         </dependency>
         <dependency>
-            <groupId>name.wind.common</groupId>
+            <groupId>com.github.windchopper</groupId>
             <artifactId>common</artifactId>
             <version>1.0</version>
         </dependency>

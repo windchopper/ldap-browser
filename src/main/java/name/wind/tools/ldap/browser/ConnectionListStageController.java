@@ -1,5 +1,7 @@
 package name.wind.tools.ldap.browser;
 
+import com.github.windchopper.common.fx.util.PropertyUtils;
+import com.github.windchopper.common.util.Pipeliner;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
@@ -9,8 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import name.wind.common.util.Builder;
-import name.wind.common.util.Value;
 import name.wind.tools.ldap.browser.events.ConnectionEdit;
 import name.wind.tools.ldap.browser.events.ConnectionEditCommitted;
 import name.wind.tools.ldap.browser.events.StageConstructed;
@@ -23,7 +23,6 @@ import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collections;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
@@ -41,50 +40,50 @@ import static java.util.Arrays.asList;
     private MenuItem removeMenuItem;
     private MenuItem propertiesMenuItem;
 
-    @SuppressWarnings("Convert2MethodRef") private Parent buildSceneRoot() {
-        return Builder.direct(BorderPane::new)
-            .set(target -> target::setCenter, connectionTableView = Builder.direct(TableView<Connection>::new)
+    private Parent buildSceneRoot() {
+        return Pipeliner.of(BorderPane::new)
+            .set(target -> target::setCenter, connectionTableView = Pipeliner.of(TableView<Connection>::new)
                 .set(target -> target.getSelectionModel()::setSelectionMode, SelectionMode.SINGLE)
                 .set(target -> target::setColumnResizePolicy, TableView.CONSTRAINED_RESIZE_POLICY)
                 .add(target -> target::getColumns, asList(
-                    Builder.direct(() -> new TableColumn<Connection, String>())
+                    Pipeliner.of(TableColumn<Connection, String>::new)
                         .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.columns.name"))
                         .set(target -> target::setMaxWidth, Integer.MAX_VALUE * 50.)
                         .set(target -> target::setMaxWidth, Integer.MAX_VALUE * 50.)
                         .set(target -> target::setCellValueFactory, features -> features.getValue().nameProperty)
                         .get(),
-                    Builder.direct(() -> new TableColumn<Connection, String>())
+                    Pipeliner.of(TableColumn<Connection, String>::new)
                         .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.columns.host"))
                         .set(target -> target::setMaxWidth, Integer.MAX_VALUE * 30.)
                         .set(target -> target::setCellValueFactory, features -> features.getValue().hostProperty)
                         .get(),
-                    Builder.direct(() -> new TableColumn<Connection, Number>())
+                    Pipeliner.of(TableColumn<Connection, Number>::new)
                         .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.columns.port"))
                         .set(target -> target::setMaxWidth, Integer.MAX_VALUE * 20.)
                         .set(target -> target::setCellValueFactory, features -> features.getValue().portProperty)
                         .get()))
-                .set(target -> target::setContextMenu, Builder.direct(ContextMenu::new)
+                .set(target -> target::setContextMenu, Pipeliner.of(ContextMenu::new)
                     .add(target -> target::getItems, asList(
-                        connectMenuItem = Builder.direct(MenuItem::new)
+                        connectMenuItem = Pipeliner.of(MenuItem::new)
                             .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.connect"))
                             .get(),
-                        Builder.direct(SeparatorMenuItem::new)
+                        Pipeliner.of(SeparatorMenuItem::new)
                             .get(),
-                        cloneMenuItem = Builder.direct(MenuItem::new)
+                        cloneMenuItem = Pipeliner.of(MenuItem::new)
                             .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.clone"))
                             .set(target -> target::setOnAction, this::clone)
                             .get(),
-                        addMenuItem = Builder.direct(MenuItem::new)
+                        addMenuItem = Pipeliner.of(MenuItem::new)
                             .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.add"))
                             .set(target -> target::setOnAction, this::add)
                             .get(),
-                        removeMenuItem = Builder.direct(MenuItem::new)
+                        removeMenuItem = Pipeliner.of(MenuItem::new)
                             .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.remove"))
                             .set(target -> target::setOnAction, this::remove)
                             .get(),
-                        Builder.direct(SeparatorMenuItem::new)
+                        Pipeliner.of(SeparatorMenuItem::new)
                             .get(),
-                        propertiesMenuItem = Builder.direct(MenuItem::new)
+                        propertiesMenuItem = Pipeliner.of(MenuItem::new)
                             .set(target -> target::setText, bundle.getString("ConnectionListStageController.connectionTable.contextMenu.properties"))
                             .set(target -> target::setOnAction, this::properties)
                             .get()))
@@ -97,7 +96,7 @@ import static java.util.Arrays.asList;
     private void openEdit() {
         CDI.current().getBeanManager().fireEvent(
             new StageConstructed(
-                Builder.direct(Stage::new)
+                Pipeliner.of(Stage::new)
                     .set(target -> target::initOwner, stage)
                     .set(target -> target::initModality, Modality.APPLICATION_MODAL)
                     .set(target -> target::setResizable, false)
@@ -111,7 +110,7 @@ import static java.util.Arrays.asList;
         openEdit();
         CDI.current().getBeanManager().fireEvent(
             new ConnectionEdit(
-                connectionTableView.getSelectionModel().getSelectedItem().clone()));
+                connectionTableView.getSelectionModel().getSelectedItem().copy()));
     }
 
     private void add(ActionEvent event) {
@@ -122,14 +121,9 @@ import static java.util.Arrays.asList;
     }
 
     private void remove(ActionEvent event) {
-        preferences.connections.accept(list -> {
-            Connection selectedItem = connectionTableView.getSelectionModel().getSelectedItem();
-
-            list.removeIf(existent -> existent.same(selectedItem));
-            connectionTableView.getItems().removeIf(item -> item.same(selectedItem));
-
-            return list;
-        });
+        Connection selectedItem = connectionTableView.getSelectionModel().getSelectedItem();
+        connectionTableView.getItems().remove(selectedItem);
+        preferences.connections.accept(connectionTableView.getItems());
     }
 
     private void properties(ActionEvent event) {
@@ -140,21 +134,18 @@ import static java.util.Arrays.asList;
     }
 
     private void connectionEditCommited(@Observes ConnectionEditCommitted connectionEditCommitted) {
-        preferences.connections.accept(list -> {
-            persistCommitted(list, connectionEditCommitted.connection());
-            return list;
-        });
-    }
+        Connection committed = connectionEditCommitted.connection();
+        Connection existentConnection = connectionTableView.getItems().stream()
+            .filter(existent -> PropertyUtils.valuesEquals(existent.nameProperty, committed.nameProperty))
+            .findFirst()
+            .orElse(null);
 
-    private void persistCommitted(List<Connection> list, Connection committed) {
-        Value.of(
-            list.stream()
-                .filter(existent -> existent.same(committed))
-                .findAny())
-            .ifNotPresent(() -> {
-                list.add(committed);
-                connectionTableView.getItems().add(committed);
-            });
+        if (existentConnection != null) {
+            existentConnection.copyFrom(committed);
+        } else {
+            connectionTableView.getItems().add(committed);
+            preferences.connections.accept(connectionTableView.getItems());
+        }
     }
 
     private void start(@Observes @Named(StageConstructed.IDENTIFIER__CONNECTION_LIST) StageConstructed stageConstructed) {
@@ -163,9 +154,9 @@ import static java.util.Arrays.asList;
             stageConstructed.identifier(),
             stageConstructed.preferredSize());
 
-        Stage connectionListStage = Builder.direct(() -> stage)
+        Stage connectionListStage = Pipeliner.of(() -> stage)
             .set(target -> target::setTitle, bundle.getString("ConnectionListStageController.title"))
-            .set(target -> target::setScene, Builder.direct(() -> new Scene(buildSceneRoot()))
+            .set(target -> target::setScene, Pipeliner.of(() -> new Scene(buildSceneRoot()))
                 .add(target -> target::getStylesheets, Collections.singletonList("/name/wind/tools/ldap/browser/connectionListStage.css"))
                 .get())
             .get();
